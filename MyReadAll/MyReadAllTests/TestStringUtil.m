@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "StringUtil.h"
+#import "../MyReadAll/StringUtil.h"
 
 @interface TestStringUtil : XCTestCase
 

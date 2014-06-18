@@ -7,7 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "PatternResult.h"
+#import "../MyReadAll/PatternResult.h"
 
 @interface TestPatternResult : XCTestCase
 
