@@ -8,7 +8,8 @@
 
 @protocol IJSON <NSObject>
 
-- (void) dataToJSON;
+- (void) dataToJSON;//from object to json string
+- (void) dataFromJSON;//from json string to object
 - (NSDictionary*) toJSONObject;
 - (NSString*) toTopJSONString;
 - (void) fromTopJSONObject:(NSDictionary*) dict;

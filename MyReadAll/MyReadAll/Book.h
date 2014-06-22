@@ -12,7 +12,7 @@
 @interface Book: NSObject <Reading>
 
 //extern NSString* const NAME_NONAME;
-//extern NSString* const BOOK_KEY;
+extern NSString* const BOOK_KEY;
 //extern NSString* const ID_KEY;
 //extern NSString* const NAME_KEY;
 //extern NSString* const TotalPage_KEY;
@@ -44,5 +44,7 @@
 @property (nonatomic) NSString* bUrl;
 @property (nonatomic) NSString* sUrl;
 @property (nonatomic) PatternResult* pageBgUrlPattern;
+
+-(NSString*) getPageUrl:(int) pageNum;
 
 @end

@@ -56,6 +56,13 @@ NSString* const JSKEY_PAGELIST=@"pl";
     return self;
 }
 
+-(NSString*) description{
+    NSString* desc=[NSString stringWithFormat:
+                    @"patternType:%d, digitNum:%d, startImageCount:%d, suffix:%@, prefix:%@, postfix:%@, sep:%@, incMode:%d",
+                    _patternType, _digitNum, _startImageCount, _patternSuffix, _patternPrefix, _postFix, _sep, _incMode];
+    return desc;
+}
+
 -(NSString*) toJSON{
     NSMutableDictionary *jsonDic=[[NSMutableDictionary alloc]init];
     if(_patternType!=default_patternType){
@@ -96,10 +103,14 @@ NSString* const JSKEY_PAGELIST=@"pl";
     return ret;
 }
 
--(void) fromJSON:(NSString *)jsonString{
+-(void) fromJSONString:(NSString *)jsonString{
     NSData* data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSError* err;
     NSDictionary* dict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&err];
+    [self fromJSONObject:dict];
+}
+
+-(void) fromJSONObject:(NSDictionary*) dict{
     NSNumber* num =[dict objectForKey:JSKEY_PATTERN_TYPE];
     if (num){
         _patternType = [num intValue];
@@ -129,7 +140,6 @@ NSString* const JSKEY_PAGELIST=@"pl";
         _incMode = [num intValue];
     }
     _ppUrls=[dict objectForKey:JSKEY_PAGELIST];
-    
 }
 
 - (BOOL)isEqual:(id)other {

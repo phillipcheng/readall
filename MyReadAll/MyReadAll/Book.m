@@ -86,14 +86,27 @@ NSString* const KEY_EACH_PAGE_URL = @"p";
         [mDict setObject:_sUrl forKey:KEY_SUFFIX_URL];
     }
     if (_pageBgUrlPattern){
-        [mDict setObject:_pageBgUrlPattern forKey:KEY_PAGE_BGURL_PATTERN];
+        NSString* strBgUrlPattern = [_pageBgUrlPattern toJSON];
+        [mDict setObject:strBgUrlPattern forKey:KEY_PAGE_BGURL_PATTERN];
     }
     NSError* err;
     NSData* nsData = [NSJSONSerialization dataWithJSONObject:mDict options:0 error:&err];
     if (nsData){
         _data = [[NSString alloc] initWithData:nsData encoding:NSUTF8StringEncoding];
     }
-    
+}
+
+- (void) dataFromJSON{
+    NSData* d = [_data dataUsingEncoding:NSUTF8StringEncoding];
+    NSError* err;
+    NSDictionary* dict = [NSJSONSerialization JSONObjectWithData:d options:0 error:&err];
+    _coverUri = [dict objectForKey:KEY_COVER_URI];
+    _stickerDir = [dict objectForKey:KEY_STICKER_DIR];
+    _bUrl = [dict objectForKey:KEY_BASE_URL];
+    _sUrl = [dict objectForKey:KEY_SUFFIX_URL];
+    NSString* bgUrlDict = [dict objectForKey:KEY_PAGE_BGURL_PATTERN];
+    _pageBgUrlPattern = [[PatternResult alloc]init];
+    [_pageBgUrlPattern fromJSONString:bgUrlDict];
 }
 
 - (NSDictionary*) toJSONObject{
@@ -111,6 +124,14 @@ NSString* const KEY_EACH_PAGE_URL = @"p";
     return dict;
 }
 
+-(NSString*) description{
+    NSString* desc=[NSString stringWithFormat:@"bookId:%@, bookName:%@, totalpage:%d, lastpage:%d, utime:%@, data:%@, \
+                    cat:%@, read:%d, cached:%d, indexedPages:%d, coverUri:%@, stickerDir:%@, bUrl:%@, sUrl:%@, bgUrlPattern:%@",
+                    _bookId, _bookName, _totalpage, _lastpage, _utime, _data, _cat, _read, _cached, _indexedPages,
+                    _coverUri, _stickerDir, _bUrl, _sUrl, [_pageBgUrlPattern description]];
+    return desc;
+}
+
 -(NSString*) toTopJSONString{
     NSDictionary* dict = [self toJSONObject];
     NSMutableDictionary* topDict = [[NSMutableDictionary alloc]init];
@@ -121,25 +142,35 @@ NSString* const KEY_EACH_PAGE_URL = @"p";
 }
 
 - (void) fromTopJSONObject:(NSDictionary*) dict{
-    _bookId = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, ID_KEY]];
-    _bookName = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, NAME_KEY]];
-    _utime = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, UTIME_KEY]];
-    _data = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, DATA_KEY]];
-    _cat = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, CAT_KEY]];
-    _totalpage = [[dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, TotalPage_KEY]] intValue];
-    _lastpage = [[dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, LastReadPage_KEY]] intValue];
-    _read = [[dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, READ_KEY]] intValue];
-    _cached = [[dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, CACHED_KEY]] intValue];
-    _indexedPages = [[dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, IndexedPage_KEY]] intValue];
+    _bookId = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, ID_KEY]];
+    _bookName = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, NAME_KEY]];
+    _utime = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, UTIME_KEY]];
+    _data = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, DATA_KEY]];
+    
+    [self dataFromJSON];
+    
+    _cat = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, CAT_KEY]];
+    _totalpage = [[dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, TotalPage_KEY]] intValue];
+    _lastpage = [[dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, LastReadPage_KEY]] intValue];
+    _read = [[dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, READ_KEY]] intValue];
+    _cached = [[dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, CACHED_KEY]] intValue];
+    _indexedPages = [[dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, IndexedPage_KEY]] intValue];
 }
 
 - (void) fromTopJSONString:(NSString*) jstring{
     NSError* err;
     NSDictionary* topDict = [NSJSONSerialization JSONObjectWithData:[jstring dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&err];
-    NSDictionary* dict = [topDict valueForKey:BOOK_KEY];
+    NSDictionary* dict = [topDict objectForKey:BOOK_KEY];
     [self fromTopJSONObject:dict];
 }
 
-
+-(NSString*) getPageUrl:(int) pageNum{
+    if (_pageBgUrlPattern){
+        return [PatternResult guessUrl:_pageBgUrlPattern
+                               atDelta:(pageNum-1)];
+    }else{
+        return nil;
+    }
+}
 
 @end

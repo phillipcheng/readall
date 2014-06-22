@@ -28,7 +28,9 @@ extern int const IM_DEC;
 @property (nonatomic) NSArray* ppUrls;
 
 -(NSString*) toJSON;
--(void) fromJSON:(NSString*) jsonString;
+-(void) fromJSONString:(NSString*) jsonString;
+-(void) fromJSONObject:(NSDictionary*) jsonDict;
++(NSString*) guessUrl:(PatternResult*) pr atDelta:(int) delta;
 
 
 @end

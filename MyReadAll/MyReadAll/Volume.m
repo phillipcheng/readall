@@ -16,8 +16,6 @@ NSString* const ROOT_VOLUME_LHH=@"999999";
 NSString* const ROOT_VOLUME_MH=@"999998";
 NSString* const ROOT_VOLUME_SELF=@"999997";
 
-NSDictionary* ROOT_VOLUMES;
-
 NSString* const VOLUME_KEY=@"Volume";
 NSString* const VOL_ID_KEY=@"id";
 NSString* const VOL_NAME_KEY=@"name";
@@ -27,16 +25,18 @@ NSString* const VOL_CAT_KEY=@"cat";
 NSString* const VOL_AUTHOR_KEY=@"au";
 NSString* const VOL_BOOKNUM_KEY=@"bn";
 
-+(void)initialize{
-    ROOT_VOLUMES=[[NSMutableDictionary alloc]init];
-    NSMutableDictionary* ROOT_VOLUMES = [[NSMutableDictionary alloc]init];
-    Volume* v1 = [[Volume alloc]initWithId:ROOT_VOLUME_LHH];
-    [ROOT_VOLUMES setValue:v1 forKey:ROOT_VOLUME_LHH];
-    Volume* v2 = [[Volume alloc]initWithId:ROOT_VOLUME_MH];
-    [ROOT_VOLUMES setValue:v2 forKey:ROOT_VOLUME_MH];
-    Volume* v3 = [[Volume alloc]initWithId:ROOT_VOLUME_SELF];
-    [ROOT_VOLUMES setValue:v3 forKey:ROOT_VOLUME_SELF];
-    
+static NSMutableDictionary* RootVolumes;
++(NSMutableDictionary*) RootVolumes{
+    if (RootVolumes == nil){
+        RootVolumes=[[NSMutableDictionary alloc]init];
+        Volume* v1 = [[Volume alloc]initWithId:ROOT_VOLUME_LHH];
+        [RootVolumes setObject:v1 forKey:ROOT_VOLUME_LHH];
+        Volume* v2 = [[Volume alloc]initWithId:ROOT_VOLUME_MH];
+        [RootVolumes setObject:v2 forKey:ROOT_VOLUME_MH];
+        Volume* v3 = [[Volume alloc]initWithId:ROOT_VOLUME_SELF];
+        [RootVolumes setObject:v3 forKey:ROOT_VOLUME_SELF];
+    }
+    return RootVolumes;
 }
 
 -(id)initWithId:(NSString*) volId{
@@ -99,6 +99,13 @@ NSString* const VOL_BOOKNUM_KEY=@"bn";
     }
 }
 
+- (void) dataFromJSON{
+    NSData* d = [_data dataUsingEncoding:NSUTF8StringEncoding];
+    NSError* err;
+    NSDictionary* dict = [NSJSONSerialization JSONObjectWithData:d options:0 error:&err];
+    _coverUri = [dict objectForKey:KEY_COVER_URI];
+}
+
 - (NSDictionary*) toJSONObject{
     NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
     [dict setObject:_volId forKey:[NSString stringWithFormat:@"%@%@", AT, VOL_ID_KEY]];
@@ -111,6 +118,12 @@ NSString* const VOL_BOOKNUM_KEY=@"bn";
     return dict;
 }
 
+-(NSString*) description{
+    NSString* desc=[NSString stringWithFormat:@"volId:%@, name:%@, utime:%@, data:%@, pcat:%@, author:%@, bookNum:%d, coverUri:%@",
+                    _volId, _name, _utime, _data, _pCat, _author, _bookNum, _coverUri];
+    return desc;
+}
+
 -(NSString*) toTopJSONString{
     NSDictionary* dict = [self toJSONObject];
     NSMutableDictionary* topDict = [[NSMutableDictionary alloc]init];
@@ -121,13 +134,16 @@ NSString* const VOL_BOOKNUM_KEY=@"bn";
 }
 
 - (void) fromTopJSONObject:(NSDictionary*) dict{
-    _volId = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_ID_KEY]];
-    _name = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_NAME_KEY]];
-    _utime = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_UTIME_KEY]];
-    _data = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_DATA_KEY]];
-    _pCat = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_CAT_KEY]];
-    _author = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_AUTHOR_KEY]];
-    NSNumber* numBookNum = [dict valueForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_BOOKNUM_KEY]];
+    _volId = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_ID_KEY]];
+    _name = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_NAME_KEY]];
+    _utime = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_UTIME_KEY]];
+    _data = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_DATA_KEY]];
+    
+    [self dataFromJSON];
+    
+    _pCat = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_CAT_KEY]];
+    _author = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_AUTHOR_KEY]];
+    NSNumber* numBookNum = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_BOOKNUM_KEY]];
     _bookNum = [numBookNum intValue];
 }
 

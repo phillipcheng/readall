@@ -14,7 +14,7 @@ extern NSString* const ROOT_VOLUME_LHH;
 extern NSString* const ROOT_VOLUME_MH;
 extern NSString* const ROOT_VOLUME_SELF;
 
-extern NSDictionary* ROOT_VOLUMES;
+extern NSString* const VOLUME_KEY;
 
 @property (nonatomic) int state;
 @property (nonatomic) NSString* volId;
@@ -27,7 +27,7 @@ extern NSDictionary* ROOT_VOLUMES;
 @property (nonatomic) int bookNum;
 @property (nonatomic) NSString* coverUri;
 
-
++(NSMutableDictionary*) RootVolumes;
 -(id)initWithId:(NSString*) volId;
 
 @end
