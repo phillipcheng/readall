@@ -6,8 +6,10 @@
 //  Copyright (c) 2014 Cheng Yi. All rights reserved.
 //
 
+#import "SearchResult.h"
+
 @protocol SearchPostProcess <NSObject>
 
--(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit result:(NSArray*) result;
+-(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit result:(SearchResult*) result;
 
 @end
