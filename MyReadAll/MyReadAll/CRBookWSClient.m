@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "CRBookWSClient.h"
 #import "SearchCondition.h"
+#import "SearchResult.h"
 #import "FileCache.h"
 #import "ImageUtil.h"
 #import <UIKit/UIKit.h>
@@ -200,20 +201,33 @@
     dispatch_async(queue, ^{
         NSError* err;
         NSMutableArray* readings = [[NSMutableArray alloc]init];
+        int count=0;
         if ((searchTxt) && (![@"" isEqualToString:searchTxt])){
             [readings addObjectsFromArray:[self getVolumesLike:searchTxt offset:offset limit:limit error:err]];
             [readings addObjectsFromArray:[self getBooksByName:searchTxt offset:offset limit:limit error:err]];
+            
+            //
+            count = [self getVCLike:searchTxt error:err];
+            count += [self getBCByName:searchTxt error:err];
+            
         }else{
             if (catId){
                 [readings addObjectsFromArray:[self getVolumesByPCat:catId offset:offset limit:limit error:err]];
                 [readings addObjectsFromArray:[self getBooksByCat:catId offset:offset limit:limit error:err]];
+                //
+                count = [self getVCByPCat:catId error:err];
+                count += [self getBCByCat:catId error:err];
             }else{
                 //do nothing
             }
         }
+        SearchResult* sr = [[SearchResult alloc]init];
+        sr.readings = readings;
+        sr.count = count;
+        
         if (!err){
             NSLog(@"readings got: %@", readings);
-            [postProcessor postProcess:searchTxt searchCat:catId offset:offset limit:limit result:readings];
+            [postProcessor postProcess:searchTxt searchCat:catId offset:offset limit:limit result:sr];
         }else{
             NSLog(@"%@", [err description]);
         }

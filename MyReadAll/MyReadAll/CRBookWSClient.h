@@ -30,6 +30,7 @@
 -(NSString*) login:(NSString*) device stime:(NSString*) stime error:(NSError*)err;
 -(BOOL) logout:(NSString*) sessionId etime:(NSString*) etime error:(NSError*)err;
 
+//return the reading count
 -(void) asyncGetReadingsByParam:(NSString*) searchTxt catId:(NSString*) catId offset:(int) offset limit:(int) limit
                   postProcessor:(id <SearchPostProcess>) postProcessor;
 
