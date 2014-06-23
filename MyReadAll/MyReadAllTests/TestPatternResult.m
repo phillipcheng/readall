@@ -42,7 +42,7 @@
     XCTAssertNotNil(ret);
     
     PatternResult* pr2 = [[PatternResult alloc]init];
-    [pr2 fromJSON:ret];
+    [pr2 fromJSONString:ret];
     [pr2 toJSON];
     
     XCTAssertTrue([pr isEqual: pr2]);
