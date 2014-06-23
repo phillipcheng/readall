@@ -33,12 +33,18 @@
     _wsClient = [[CRBookWSClient alloc]init];
 }
 
--(void)viewDidAppear:(BOOL)animated {
+-(void) doSearch{
     NSString* url = [_book getPageUrl:_curPage];
     PageCondition* pc = [[PageCondition alloc]init];
     pc.book = _book;
     pc.pageNum = _curPage;
+    _totalPageLbl.text = [NSString stringWithFormat:@"%d", _book.totalpage];
+    _curPageTxt.text = [NSString stringWithFormat:@"%d", _curPage];
     [_wsClient asyncGetImage:url ppParam:pc postProcessor:self];
+}
+
+-(void)viewDidAppear:(BOOL)animated {
+    [self doSearch];
 }
 
 -(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam{
@@ -57,9 +63,25 @@
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark - Navigation
+- (IBAction)nextPage:(id)sender {
+    if (_curPage<_book.totalpage){
+        _curPage++;
+        [self doSearch];
+    }
+}
 
+- (IBAction)prevPage:(id)sender {
+    if (_curPage>1){
+        _curPage--;
+        [self doSearch];
+    }
+}
 
-
-
+- (IBAction)setPage:(id)sender {
+    int page = [[_curPageTxt text]intValue];
+    if (page<=_book.totalpage && page>=1){
+        _curPage = page;
+        [self doSearch];
+    }
+}
 @end

@@ -12,8 +12,12 @@
 
 @interface PageViewController : UIViewController <DownloadPostProcess>
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
-@property (weak, nonatomic) IBOutlet UIProgressView *progressView;
 @property (nonatomic) Book* book;
 @property (nonatomic) int curPage;
+@property (weak, nonatomic) IBOutlet UITextField *curPageTxt;
+@property (weak, nonatomic) IBOutlet UILabel *totalPageLbl;
+- (IBAction)nextPage:(id)sender;
+- (IBAction)prevPage:(id)sender;
+- (IBAction)setPage:(id)sender;
 
 @end

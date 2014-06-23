@@ -13,6 +13,8 @@
 #import "SearchCondition.h"
 #import "Volume.h"
 #import "PageViewController.h"
+#import "SearchResult.h"
+
 
 @interface FirstViewController () 
             
@@ -25,15 +27,31 @@
 NSString* const CELL_ID=@"Reading";
 
 @implementation FirstViewController
-            
+
+
+
+static int itemsPerPage = 20;
+
++(int) itemsPerPage{
+    return itemsPerPage;
+}
+
++(void) setItemsPerPage:(int) ipp{
+    itemsPerPage = ipp;
+}
+
 - (void)viewDidLoad {
     NSLog(@"viewDidLoad called");
     [super viewDidLoad];
     _wsClient = [[CRBookWSClient alloc]init];
     _readings = [@[] mutableCopy];
     _covers = [@[] mutableCopy];
-    _rootCatId = @"999999";
-    _curVol = [[Volume RootVolumes] objectForKey:_rootCatId];
+    _curPage = 1;
+    if (_curVol == nil){
+        _rootCatId = @"999999";
+        _curVol = [[Volume RootVolumes] objectForKey:_rootCatId];
+    }
+    [self doSearch:self];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -42,24 +60,51 @@ NSString* const CELL_ID=@"Reading";
 }
 
 - (IBAction)doSearch:(id)sender {
-    [_wsClient asyncGetReadingsByParam:[_searchTxt text] catId:_rootCatId offset:0 limit:20 postProcessor:self];
+    int itemOffset = (_curPage-1)* itemsPerPage;
+    [_wsClient asyncGetReadingsByParam:[_searchTxt text] catId:_curVol.volId offset:itemOffset limit:itemsPerPage postProcessor:self];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _curPageTxt.text = [NSString stringWithFormat:@"%d", _curPage];
+    });
 }
 - (IBAction)doPrev:(id)sender {
+    if (_curPage>1){
+        _curPage--;
+        [self doSearch:sender];
+    }
+    
 }
 - (IBAction)doNext:(id)sender {
+    if (_curPage<_totalPage){
+        _curPage++;
+        [self doSearch:sender];
+    }
 }
 
--(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit result:(NSArray*) result{
+- (IBAction)setPage:(id)sender {
+    int page = [[_curPageTxt text]intValue];
+    if (page>0 && page<_totalPage){
+        _curPage=page;
+        [self doSearch:sender];
+    }
+}
+
+-(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit result:(SearchResult*) result{
     [_readings removeAllObjects];
-    [_readings addObjectsFromArray:result];
+    [_readings addObjectsFromArray:result.readings];
     //populate the corresponding cover image array with NSNull
     [_covers removeAllObjects];
-    for (int i=0; i<[result count]; i++) {
+    for (int i=0; i<[result.readings count]; i++) {
         [_covers addObject:[NSNull null]];
+    }
+    if (result.count%itemsPerPage==0){
+        _totalPage = result.count/itemsPerPage;
+    }else{
+        _totalPage = result.count/itemsPerPage + 1;
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [_readingCV reloadData];
+        _totalPageLbl.text = [NSString stringWithFormat:@"%d", _totalPage];
     });
 }
 
@@ -120,8 +165,8 @@ NSString* const CELL_ID=@"Reading";
     id<Reading> reading=_readings[indexPath.row];
     if ([reading isKindOfClass:[Book class]]){
         [self performSegueWithIdentifier:@"OpenBook" sender:reading];
-    }else{
-        
+    }else if ([reading isKindOfClass:[Volume class]]){
+        [self performSegueWithIdentifier:@"OpenVolume" sender:reading];
     }
 }
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -135,6 +180,9 @@ NSString* const CELL_ID=@"Reading";
         PageViewController *pvController = segue.destinationViewController;
         pvController.book = sender;
         pvController.curPage = 1;
+    }else if([segue.identifier isEqualToString:@"OpenVolume"]) {
+        FirstViewController *pvController = segue.destinationViewController;
+        pvController.curVol = sender;
     }
 }
 @end

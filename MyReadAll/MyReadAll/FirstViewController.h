@@ -11,21 +11,25 @@
 #import "DownloadPostProcess.h"
 #import "Volume.h"
 
+
 @interface FirstViewController: UIViewController <SearchPostProcess, DownloadPostProcess, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
 
-@property (weak, nonatomic) IBOutlet UIButton *searchBtn;
-@property (weak, nonatomic) IBOutlet UITextField *searchTxt;
 
-@property (weak, nonatomic) IBOutlet UIButton *nextBtn;
-@property (weak, nonatomic) IBOutlet UIButton *prevBtn;
+@property (weak, nonatomic) IBOutlet UITextField *searchTxt;
 @property (weak, nonatomic) IBOutlet UITextField *curPageTxt;
-@property (weak, nonatomic) IBOutlet UITextField *totalPageTxt;
+@property (weak, nonatomic) IBOutlet UILabel *totalPageLbl;
 
 @property (weak, nonatomic) IBOutlet UICollectionView *readingCV;
 
 @property (nonatomic) NSString* rootCatId;
 @property (nonatomic) Volume* curVol;
+@property (nonatomic) int curPage;
+@property (nonatomic) int totalPage;
 
+- (IBAction)setPage:(id)sender;
+
++(int) itemsPerPage;
++(void) setItemsPerPage:(int) ipp;
 
 @end
 
