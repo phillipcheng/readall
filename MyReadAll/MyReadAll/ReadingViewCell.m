@@ -14,9 +14,18 @@
 {
     self = [super initWithFrame:frameRect];
     if (self) {
-        // Initialization code
     }
+    
     return self;
 }
 
+- (IBAction)btnClick:(id)sender {
+    if (_chkSel){
+        _chkSel = false;
+        [_selBtn setSelected:false];
+    }else{
+        _chkSel = true;
+        [_selBtn setSelected:true];
+    }
+}
 @end

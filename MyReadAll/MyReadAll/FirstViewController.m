@@ -14,6 +14,7 @@
 #import "Volume.h"
 #import "PageViewController.h"
 #import "SearchResult.h"
+#import "CRApp.h"
 
 
 @interface FirstViewController () 
@@ -21,16 +22,16 @@
 @property(nonatomic) CRBookWSClient* wsClient;
 @property(nonatomic) NSMutableArray* readings; //id<Reading>
 @property(nonatomic) NSMutableArray* covers;//UIImage*
-
+@property(nonatomic) float screenWidth;
 @end
 
 NSString* const CELL_ID=@"Reading";
 
 @implementation FirstViewController
 
-
-
 static int itemsPerPage = 20;
+static int columnNum = 3;
+
 
 +(int) itemsPerPage{
     return itemsPerPage;
@@ -39,11 +40,10 @@ static int itemsPerPage = 20;
 +(void) setItemsPerPage:(int) ipp{
     itemsPerPage = ipp;
 }
-
 - (void)viewDidLoad {
     NSLog(@"viewDidLoad called");
     [super viewDidLoad];
-    _wsClient = [[CRBookWSClient alloc]init];
+    _wsClient = [CRApp getWSClient];
     _readings = [@[] mutableCopy];
     _covers = [@[] mutableCopy];
     _curPage = 1;
@@ -51,6 +51,14 @@ static int itemsPerPage = 20;
         _rootCatId = @"999999";
         _curVol = [[Volume RootVolumes] objectForKey:_rootCatId];
     }
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    float x=screenRect.size.width;
+    float y=screenRect.size.height;
+    _screenWidth = x<y?x:y;//always set to smaller dimension
+    int width = _screenWidth/columnNum -_readingLayout.minimumInteritemSpacing;
+    int height = width*3/2;
+    NSLog(@"reading collection view width: %d, height:%d", width, height);//collection view bounds in pixel
+    [self.readingLayout setItemSize:CGSizeMake(width, height)];//item size in points
     [self doSearch:self];
 }
 
@@ -61,7 +69,7 @@ static int itemsPerPage = 20;
 
 - (IBAction)doSearch:(id)sender {
     int itemOffset = (_curPage-1)* itemsPerPage;
-    [_wsClient asyncGetReadingsByParam:[_searchTxt text] catId:_curVol.volId offset:itemOffset limit:itemsPerPage postProcessor:self];
+    [_wsClient asyncGetReadingsByParam:[_searchTxt text] catId:_curVol.volId userId:@"" offset:itemOffset limit:itemsPerPage postProcessor:self];
     dispatch_async(dispatch_get_main_queue(), ^{
         _curPageTxt.text = [NSString stringWithFormat:@"%d", _curPage];
     });
@@ -88,6 +96,7 @@ static int itemsPerPage = 20;
     }
 }
 
+//post process for the list of reading get from search
 -(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit result:(SearchResult*) result{
     [_readings removeAllObjects];
     [_readings addObjectsFromArray:result.readings];
@@ -108,6 +117,7 @@ static int itemsPerPage = 20;
     });
 }
 
+//post process for the cover image
 -(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam{
     UIImage* img = [UIImage imageWithData:result];
     SearchCondition* sc=(SearchCondition*)ppParam;
@@ -131,11 +141,20 @@ static int itemsPerPage = 20;
 - (NSInteger)numberOfSectionsInCollectionView: (UICollectionView *)collectionView {
     return 1;
 }
-// 3
+//process for each cells
 - (UICollectionViewCell *)collectionView:(UICollectionView *)cv cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     ReadingViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:CELL_ID forIndexPath:indexPath];
     cell.backgroundColor = [UIColor whiteColor];
     id<Reading> reading=_readings[indexPath.row];
+    if ([reading isKindOfClass:[Book class]]){
+        Book* b = (Book*)reading;
+        cell.imageLabel.text = [NSString stringWithFormat:@"%@(%d)", b.bookName, b.totalpage];
+    }else if ([reading isKindOfClass:[Volume class]]){
+        cell.readingTypeImageView.image = [UIImage imageNamed:@"book_volume.jpg"];
+        Volume* v = (Volume*)reading;
+        cell.imageLabel.text = [NSString stringWithFormat:@"%@(%d)", v.name, v.bookNum];
+    }
+    
     NSString* coverUrl=[reading getCoverUri];
     if (coverUrl==nil && [reading isKindOfClass:[Book class]]){
         coverUrl = [((Book*)reading) getPageUrl:1];
@@ -145,7 +164,7 @@ static int itemsPerPage = 20;
     }
     id img = [_covers objectAtIndex:[indexPath row]];
     if (img==[NSNull null]){
-        img = [UIImage imageNamed:@"resources.bundle/empty_cover.jpg"];
+        img = [UIImage imageNamed:@"empty_cover_2.jpg"];
         //
         SearchCondition* sc = [[SearchCondition alloc]init];
         sc.searchTxt=[_searchTxt text];
@@ -185,4 +204,5 @@ static int itemsPerPage = 20;
         pvController.curVol = sender;
     }
 }
+
 @end

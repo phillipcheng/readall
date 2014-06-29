@@ -20,6 +20,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *totalPageLbl;
 
 @property (weak, nonatomic) IBOutlet UICollectionView *readingCV;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *readingLayout;
 
 @property (nonatomic) NSString* rootCatId;
 @property (nonatomic) Volume* curVol;
