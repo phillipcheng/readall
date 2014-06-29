@@ -98,6 +98,7 @@ NSString* const JSKEY_PAGELIST=@"pl";
     }
     NSError *err;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDic options:NSJSONWritingPrettyPrinted error:&err];
+    
     NSString *ret=[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     NSLog(@"JSON=%@ error:%@", ret, [err description]);
     return ret;
