@@ -7,6 +7,10 @@
 //
 
 #import "CRBookWSClient.h"
+#import "AttrChangedListener.h"
+
+extern NSString* const LOGIN_FAILED;
+extern NSString* const SIGN_UP_SUCCEED;
 
 @interface CRApp:NSObject
 
@@ -17,5 +21,15 @@
 
 +(NSString*) getSessionId;
 +(void) setSessionId:(NSString*) sid;
+
++(int) itemsPerPage;
++(void) setItemsPerPage:(int) ipp;
+
++(NSDateFormatter*) getDateFormatter;
+
++(void) addAttrChangedListener:(id<AttrChangedListener>) listener;
+
++(BOOL) isMyReading;
++(void) setMyReading:(BOOL) val;
 
 @end

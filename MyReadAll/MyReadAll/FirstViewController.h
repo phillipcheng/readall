@@ -10,9 +10,11 @@
 #import "SearchPostProcess.h"
 #import "DownloadPostProcess.h"
 #import "Volume.h"
+#import "AttrChangedListener.h"
+#import "MyReadingsPostProcess.h"
 
 
-@interface FirstViewController: UIViewController <SearchPostProcess, DownloadPostProcess, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
+@interface FirstViewController: UIViewController <SearchPostProcess, DownloadPostProcess, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, AttrChangedListener, MyReadingsPostProcess>
 
 
 @property (weak, nonatomic) IBOutlet UITextField *searchTxt;
@@ -22,15 +24,20 @@
 @property (weak, nonatomic) IBOutlet UICollectionView *readingCV;
 @property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *readingLayout;
 
-@property (nonatomic) NSString* rootCatId;
-@property (nonatomic) Volume* curVol;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *LoginBarButton;
+
+@property (weak, nonatomic) IBOutlet UIButton *selMyReading;
+
+@property (nonatomic) NSString* curVolId;
 @property (nonatomic) int curPage;
 @property (nonatomic) int totalPage;
 
+- (IBAction)myReadingClick:(id)sender;
+- (IBAction)addMyReadings:(id)sender;
+- (IBAction)delMyReadings:(id)sender;
 - (IBAction)setPage:(id)sender;
-
-+(int) itemsPerPage;
-+(void) setItemsPerPage:(int) ipp;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *addMyReadingsBtn;
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *delMyReadingsBtn;
 
 @end
 

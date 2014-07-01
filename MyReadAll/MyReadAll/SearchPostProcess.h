@@ -10,6 +10,7 @@
 
 @protocol SearchPostProcess <NSObject>
 
--(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit result:(SearchResult*) result;
+-(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit
+             result:(SearchResult*) result err:(NSError*) err;
 
 @end

@@ -7,6 +7,10 @@
 //
 
 #import "LoginViewController.h"
+#import "CRApp.h"
+
+int const ALERT_TAG_LOGIN_SUCCESS=1;
+int const ALERT_TAG_SIGNUP_SUCCESS=2;
 
 @interface LoginViewController ()
 
@@ -47,7 +51,7 @@
 */
 
 - (IBAction)signup:(id)sender {
-    UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+    UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
     
     if ([_passwordTxt.text isEqualToString:_retypePassTxt.text]){
         if ([@"" isEqualToString:_passwordTxt.text]){
@@ -62,7 +66,7 @@
             [alert show];
             return;
         }
-        
+        [[CRApp getWSClient]asyncSignup:_userNameTxt.text pass:_passwordTxt.text postProcessor:self];
     }else{
         alert.title = @"Error";
         alert.message=@"Password retyped not equal.";
@@ -71,7 +75,69 @@
     }
 }
 
+-(void) signupPostProcess:(NSString*) userName password:(NSString*) password result:(NSString*) result err:(NSError *)err{
+    NSLog(@"signupPostProcess:%@, %@, %@", userName, password, result);
+    UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    if ([SIGN_UP_SUCCEED isEqualToString:result]){
+        alert.title = @"Success";
+        alert.message=@"Sign Up succeeded.";
+        alert.tag = ALERT_TAG_SIGNUP_SUCCESS;
+        [alert addButtonWithTitle:@"Continue to Login.."];
+    }else{
+        alert.title = @"Error";
+        alert.message = [NSString stringWithFormat:@"%@:%@", result, [err description]];
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [alert show];
+    });
+}
+
 - (IBAction)login:(id)sender {
+    UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    NSString* password = [_passwordTxt.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString* username = [_userNameTxt.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if ([@"" isEqualToString:password]||[@"" isEqualToString:username]){
+        alert.title = @"Error";
+        alert.message = @"Username or Password is empty.";
+        [alert show];
+        return;
+    }else{
+        [[CRApp getWSClient]asyncLogin:username pass:password postProcessor:self];
+        return;
+    }
+}
+
+-(void) loginPostProcess:(NSString*) userName password:(NSString*) password result:(NSString*) result err:(NSError *)err{
+    NSLog(@"loginPostProcess:%@, %@, %@", userName, password, result);
+    
+    UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    if ([LOGIN_FAILED isEqualToString:result]){
+        alert.title = @"Error";
+        alert.message=@"Check user/pass";
+    }else{
+        alert.title = @"Succees";
+        alert.message = @"Login succeeded.";
+        alert.tag= ALERT_TAG_LOGIN_SUCCESS;
+    }
+    NSLog(@"loginPostProcess before dispatch.");
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [alert show];
+    });
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    if (alertView.tag==ALERT_TAG_LOGIN_SUCCESS){
+        if (buttonIndex==0){
+            [self dismissViewControllerAnimated:YES completion:nil];
+            //set global userid
+            NSString* username = [_userNameTxt.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+            [CRApp setUserId:username];
+        }
+    }else if (alertView.tag == ALERT_TAG_SIGNUP_SUCCESS){
+        if (buttonIndex==1){
+            [[CRApp getWSClient]asyncLogin:_userNameTxt.text pass:_passwordTxt.text postProcessor:self];
+        }
+    }
 }
 
 - (IBAction)cancel:(id)sender {

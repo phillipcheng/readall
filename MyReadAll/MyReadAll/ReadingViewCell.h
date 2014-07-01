@@ -14,9 +14,13 @@
 @property (weak, nonatomic) IBOutlet UIImageView *readingTypeImageView;
 @property (weak, nonatomic) IBOutlet UILabel *imageLabel;
 @property (weak, nonatomic) IBOutlet UIButton *selBtn;
+
 @property (nonatomic) BOOL chkSel;
+@property (nonatomic) NSString* rid;
+@property (nonatomic) NSMutableArray* selReadings;
 
 - (IBAction)btnClick:(id)sender;
+- (void) myInit;
 
 @property (nonatomic) id<Reading> reading;
 @end

@@ -7,8 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "LoginPostProcess.h"
+#import "SignupPostProcess.h"
 
-@interface LoginViewController : UIViewController
+extern int const ALERT_TAG_LOGIN_SUCCESS;
+extern int const ALERT_TAG_SIGNUP_SUCCESS;
+
+@interface LoginViewController : UIViewController <LoginPostProcess, SignupPostProcess, UIAlertViewDelegate>
 - (IBAction)signup:(id)sender;
 - (IBAction)login:(id)sender;
 - (IBAction)cancel:(id)sender;

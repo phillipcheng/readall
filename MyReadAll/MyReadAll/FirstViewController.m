@@ -23,34 +23,50 @@
 @property(nonatomic) NSMutableArray* readings; //id<Reading>
 @property(nonatomic) NSMutableArray* covers;//UIImage*
 @property(nonatomic) float screenWidth;
+@property (nonatomic) NSMutableArray* selReadings; //selected readings
 @end
 
 NSString* const CELL_ID=@"Reading";
 
 @implementation FirstViewController
 
-static int itemsPerPage = 20;
 static int columnNum = 3;
+static NSString* rootCat=nil;
 
-
-+(int) itemsPerPage{
-    return itemsPerPage;
++(NSString*) getRootCatList{
+    if (rootCat==nil||[@"" isEqualToString:rootCat]){
+        rootCat = [[NSString alloc]init];
+        rootCat = [rootCat stringByAppendingFormat:@"999999"];
+        rootCat = [rootCat stringByAppendingFormat:@","];
+        rootCat = [rootCat stringByAppendingFormat:@"999998"];
+    }
+    return rootCat;
+}
+-(void) setMyReadingMode{
+    NSString* uid = [CRApp getUserId];
+    if (uid!=nil && ![@"" isEqualToString:uid]){
+        [_LoginBarButton setTitle:uid];
+        [_addMyReadingsBtn setEnabled:true];
+        [_delMyReadingsBtn setEnabled:true];
+    }else{
+        _LoginBarButton.title=@"Login";
+        [_addMyReadingsBtn setEnabled:false];
+        [_delMyReadingsBtn setEnabled:false];
+    }
 }
 
-+(void) setItemsPerPage:(int) ipp{
-    itemsPerPage = ipp;
-}
 - (void)viewDidLoad {
     NSLog(@"viewDidLoad called");
     [super viewDidLoad];
+    [self setMyReadingMode];
+    [CRApp addAttrChangedListener:self];
+    if (_selReadings==nil) {
+        _selReadings = [[NSMutableArray alloc]init];
+    }
     _wsClient = [CRApp getWSClient];
     _readings = [@[] mutableCopy];
     _covers = [@[] mutableCopy];
     _curPage = 1;
-    if (_curVol == nil){
-        _rootCatId = @"999999";
-        _curVol = [[Volume RootVolumes] objectForKey:_rootCatId];
-    }
     CGRect screenRect = [[UIScreen mainScreen] bounds];
     float x=screenRect.size.width;
     float y=screenRect.size.height;
@@ -62,14 +78,94 @@ static int columnNum = 3;
     [self doSearch:self];
 }
 
+- (IBAction)myReadingClick:(id)sender{
+    if ([CRApp isMyReading]){
+        [CRApp setMyReading:false];
+        [_selMyReading setSelected:false];
+    }else{
+        [CRApp setMyReading:true];
+        [_selMyReading setSelected:true];
+        //myReading starting from nil
+        _curVolId=nil;
+    }
+    [self doSearch:self];
+}
+
+- (IBAction)addMyReadings:(id)sender {
+    NSString* uid = [CRApp getUserId];
+    if (uid!=nil && ![@"" isEqualToString:uid]) {
+        [_wsClient asyncAddMyReading:uid ids:_selReadings postProcessor:self];
+    }else{
+        NSLog(@"uid is nil");
+    }
+}
+
+- (IBAction)delMyReadings:(id)sender {
+    NSString* uid = [CRApp getUserId];
+    if (uid!=nil && ![@"" isEqualToString:uid]) {
+        [_wsClient asyncDelMyReading:uid ids:_selReadings postProcessor:self];
+    }else{
+        NSLog(@"uid is nil");
+    }
+    [self doSearch:self];
+}
+
+//for myreading post process
+-(void) myReadingPostProcess:(NSString*) userName ids:(NSArray*) ids rowsAffected:(int) rowsAffected err:(NSError*) err{
+    UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    if (rowsAffected<=0){
+        alert.title = @"Error";
+        alert.message=@"might already added.";
+    }else{
+        alert.title = @"Succees";
+        alert.message = [NSString stringWithFormat: @"%d records updated.", rowsAffected];
+    }
+    [_selReadings removeAllObjects];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [alert show];
+    });
+}
+
+//for attribute changed listener
+-(void) attrChanged:(id) sender attrName:(NSString*) attrName oldValue:(id) oldValue newValue:(id) newValue{
+    if (sender==[CRApp class]){
+        if ([attrName isEqualToString:@"userId"]){
+            [self setMyReadingMode];
+        }
+    }
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
 - (IBAction)doSearch:(id)sender {
-    int itemOffset = (_curPage-1)* itemsPerPage;
-    [_wsClient asyncGetReadingsByParam:[_searchTxt text] catId:_curVol.volId userId:@"" offset:itemOffset limit:itemsPerPage postProcessor:self];
+    NSString* userId=@"";
+    NSString* catId=_curVolId;
+    if ([CRApp isMyReading]){
+        userId = [CRApp getUserId];
+        if (userId==nil||[@"" isEqualToString:userId]){
+            UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            alert.title = @"Info";
+            alert.message = @"Please login to use this feature.";
+            [alert show];
+            //set it back
+            [CRApp setMyReading:false];
+            [_selMyReading setSelected:false];
+            return;
+        }else{
+            //keep catId to nil
+        }
+    }else{
+        userId=@"";
+        if (catId==nil){
+            catId=[FirstViewController getRootCatList];
+        }
+    }
+    
+    int itemOffset = (_curPage-1)* CRApp.itemsPerPage;
+    [_wsClient asyncGetReadingsByParam:[_searchTxt text] catId:catId userId:userId offset:itemOffset limit:CRApp.itemsPerPage postProcessor:self];
     dispatch_async(dispatch_get_main_queue(), ^{
         _curPageTxt.text = [NSString stringWithFormat:@"%d", _curPage];
     });
@@ -97,7 +193,8 @@ static int columnNum = 3;
 }
 
 //post process for the list of reading get from search
--(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit result:(SearchResult*) result{
+-(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit
+             result:(SearchResult*) result err:(NSError *)err{
     [_readings removeAllObjects];
     [_readings addObjectsFromArray:result.readings];
     //populate the corresponding cover image array with NSNull
@@ -105,6 +202,8 @@ static int columnNum = 3;
     for (int i=0; i<[result.readings count]; i++) {
         [_covers addObject:[NSNull null]];
     }
+    
+    int itemsPerPage = CRApp.itemsPerPage;
     if (result.count%itemsPerPage==0){
         _totalPage = result.count/itemsPerPage;
     }else{
@@ -118,11 +217,11 @@ static int columnNum = 3;
 }
 
 //post process for the cover image
--(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam{
+-(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam err:(NSError *)err{
     UIImage* img = [UIImage imageWithData:result];
     SearchCondition* sc=(SearchCondition*)ppParam;
     if (([sc.searchTxt isEqualToString:[_searchTxt text]])
-        && ([sc.volId isEqualToString:_curVol.volId])
+        //&& ([sc.volId isEqualToString:_curVolId])
              &&(sc.pageNum == [[_curPageTxt text]intValue])
                 && (img!=nil)){
         [_covers setObject:img atIndexedSubscript:[sc.indexPath row]];
@@ -146,6 +245,10 @@ static int columnNum = 3;
     ReadingViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:CELL_ID forIndexPath:indexPath];
     cell.backgroundColor = [UIColor whiteColor];
     id<Reading> reading=_readings[indexPath.row];
+    //this cell may be reused, i need to check
+    [cell setRid:[reading getId]];
+    [cell setSelReadings:_selReadings];
+    
     if ([reading isKindOfClass:[Book class]]){
         Book* b = (Book*)reading;
         cell.imageLabel.text = [NSString stringWithFormat:@"%@(%d)", b.bookName, b.totalpage];
@@ -154,7 +257,7 @@ static int columnNum = 3;
         Volume* v = (Volume*)reading;
         cell.imageLabel.text = [NSString stringWithFormat:@"%@(%d)", v.name, v.bookNum];
     }
-    
+    [cell myInit];
     NSString* coverUrl=[reading getCoverUri];
     if (coverUrl==nil && [reading isKindOfClass:[Book class]]){
         coverUrl = [((Book*)reading) getPageUrl:1];
@@ -168,7 +271,7 @@ static int columnNum = 3;
         //
         SearchCondition* sc = [[SearchCondition alloc]init];
         sc.searchTxt=[_searchTxt text];
-        sc.volId = _curVol.volId;
+        sc.volId = _curVolId;
         sc.pageNum = [[_curPageTxt text] intValue];
         sc.indexPath = indexPath;
         sc.reading = reading;
@@ -201,7 +304,7 @@ static int columnNum = 3;
         pvController.curPage = 1;
     }else if([segue.identifier isEqualToString:@"OpenVolume"]) {
         FirstViewController *pvController = segue.destinationViewController;
-        pvController.curVol = sender;
+        pvController.curVolId = [sender getId];
     }
 }
 

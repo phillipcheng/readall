@@ -8,6 +8,6 @@
 
 @protocol DownloadPostProcess <NSObject>
 
--(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam;
+-(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam err:(NSError*) err;
 
 @end

@@ -19,13 +19,23 @@
     return self;
 }
 
+- (void) myInit{
+    if ([_selReadings containsObject:_rid]) {
+        [_selBtn setSelected:true];
+    }else{
+        [_selBtn setSelected:false];
+    }
+}
+
 - (IBAction)btnClick:(id)sender {
     if (_chkSel){
         _chkSel = false;
         [_selBtn setSelected:false];
+        [_selReadings removeObject:_rid];
     }else{
         _chkSel = true;
         [_selBtn setSelected:true];
+        [_selReadings addObject:_rid];
     }
 }
 @end

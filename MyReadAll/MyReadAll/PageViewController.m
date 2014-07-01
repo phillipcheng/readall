@@ -47,7 +47,7 @@
     [self doSearch];
 }
 
--(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam{
+-(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam err:(NSError *)err{
     UIImage* img = [UIImage imageWithData:result];
     PageCondition* pc=(PageCondition*)ppParam;
     if ((pc.book==_book) && (pc.pageNum == _curPage)
