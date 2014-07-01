@@ -183,7 +183,6 @@ static NSString* rootCat=nil;
         [self doSearch:sender];
     }
 }
-
 - (IBAction)setPage:(id)sender {
     int page = [[_curPageTxt text]intValue];
     if (page>0 && page<_totalPage){
@@ -191,6 +190,7 @@ static NSString* rootCat=nil;
         [self doSearch:sender];
     }
 }
+
 
 //post process for the list of reading get from search
 -(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit
@@ -220,14 +220,20 @@ static NSString* rootCat=nil;
 -(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam err:(NSError *)err{
     UIImage* img = [UIImage imageWithData:result];
     SearchCondition* sc=(SearchCondition*)ppParam;
-    if (([sc.searchTxt isEqualToString:[_searchTxt text]])
+    if (([sc.searchTxt isEqualToString:[_searchTxt text]]||(sc.searchTxt==[_searchTxt text]))
         //&& ([sc.volId isEqualToString:_curVolId])
              &&(sc.pageNum == [[_curPageTxt text]intValue])
                 && (img!=nil)){
         [_covers setObject:img atIndexedSubscript:[sc.indexPath row]];
-        dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_queue_t main = dispatch_get_main_queue();
+        dispatch_block_t block = ^{
             [_readingCV reloadItemsAtIndexPaths:@[sc.indexPath]];
-        });
+        };
+        if ([NSThread isMainThread]){
+            block();
+        }else{
+            dispatch_async(main, block);
+        }
     }
 }
 
@@ -267,7 +273,7 @@ static NSString* rootCat=nil;
     }
     id img = [_covers objectAtIndex:[indexPath row]];
     if (img==[NSNull null]){
-        img = [UIImage imageNamed:@"empty_cover_2.jpg"];
+        img = [UIImage imageNamed:@"empty_cover.jpg"];
         //
         SearchCondition* sc = [[SearchCondition alloc]init];
         sc.searchTxt=[_searchTxt text];

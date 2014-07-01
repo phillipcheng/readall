@@ -35,7 +35,7 @@
 - (IBAction)myReadingClick:(id)sender;
 - (IBAction)addMyReadings:(id)sender;
 - (IBAction)delMyReadings:(id)sender;
-- (IBAction)setPage:(id)sender;
+
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *addMyReadingsBtn;
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *delMyReadingsBtn;
 

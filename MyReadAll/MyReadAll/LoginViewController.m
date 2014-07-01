@@ -60,7 +60,7 @@ int const ALERT_TAG_SIGNUP_SUCCESS=2;
             [alert show];
             return;
         }
-        if ([@"" isEqualToString:_userNameTxt.text]){
+        if ([@"" isEqualToString:_userNameTxt.text]||(_userNameTxt.text==nil)){
             alert.title = @"Error";
             alert.message=@"Username can not be null.";
             [alert show];
@@ -96,7 +96,8 @@ int const ALERT_TAG_SIGNUP_SUCCESS=2;
     UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
     NSString* password = [_passwordTxt.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     NSString* username = [_userNameTxt.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    if ([@"" isEqualToString:password]||[@"" isEqualToString:username]){
+    if (([@"" isEqualToString:password]||password==nil)||
+        ([@"" isEqualToString:username]||username==nil)){
         alert.title = @"Error";
         alert.message = @"Username or Password is empty.";
         [alert show];
@@ -128,7 +129,7 @@ int const ALERT_TAG_SIGNUP_SUCCESS=2;
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if (alertView.tag==ALERT_TAG_LOGIN_SUCCESS){
         if (buttonIndex==0){
-            [self dismissViewControllerAnimated:YES completion:nil];
+            [self.navigationController popViewControllerAnimated:YES];
             //set global userid
             NSString* username = [_userNameTxt.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
             [CRApp setUserId:username];
@@ -141,6 +142,6 @@ int const ALERT_TAG_SIGNUP_SUCCESS=2;
 }
 
 - (IBAction)cancel:(id)sender {
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 @end

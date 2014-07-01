@@ -18,6 +18,5 @@
 @property (weak, nonatomic) IBOutlet UILabel *totalPageLbl;
 - (IBAction)nextPage:(id)sender;
 - (IBAction)prevPage:(id)sender;
-- (IBAction)setPage:(id)sender;
 
 @end

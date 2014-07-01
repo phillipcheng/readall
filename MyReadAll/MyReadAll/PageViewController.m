@@ -41,6 +41,13 @@
     _totalPageLbl.text = [NSString stringWithFormat:@"%d", _book.totalpage];
     _curPageTxt.text = [NSString stringWithFormat:@"%d", _curPage];
     [_wsClient asyncGetImage:url ppParam:pc postProcessor:self];
+    
+    //add loading indicator
+    UIActivityIndicatorView  *av = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    av.frame=CGRectMake(145, 160, 25, 25);
+    av.tag  = 1;
+    [_imageView addSubview:av];
+    [av startAnimating];
 }
 
 -(void)viewDidAppear:(BOOL)animated {
@@ -54,6 +61,9 @@
         && (img!=nil)){
             dispatch_async(dispatch_get_main_queue(), ^{
                 self.imageView.image = img;
+                //remove the loading indicator
+                UIActivityIndicatorView *tmpimg = (UIActivityIndicatorView *)[_imageView viewWithTag:1];
+                [tmpimg removeFromSuperview];
             });
     }
 }
@@ -76,7 +86,6 @@
         [self doSearch];
     }
 }
-
 - (IBAction)setPage:(id)sender {
     int page = [[_curPageTxt text]intValue];
     if (page<=_book.totalpage && page>=1){

@@ -31,7 +31,9 @@
     if (_chkSel){
         _chkSel = false;
         [_selBtn setSelected:false];
-        [_selReadings removeObject:_rid];
+        if ([_selReadings containsObject:_rid]){
+            [_selReadings removeObject:_rid];
+        }
     }else{
         _chkSel = true;
         [_selBtn setSelected:true];
