@@ -8,6 +8,6 @@
 
 @protocol MyReadingsPostProcess <NSObject>
 
--(void) myReadingPostProcess:(NSString*) userName ids:(NSArray*) ids rowsAffected:(int) rowsAffected err:(NSError*) err;
+-(void) myReadingPostProcess:(NSString*) userName ids:(NSMutableArray*) ids rowsAffected:(int) rowsAffected err:(NSError*) err;
 
 @end
