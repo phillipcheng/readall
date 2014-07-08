@@ -32,4 +32,7 @@ extern NSString* const SIGN_UP_SUCCEED;
 +(BOOL) isMyReading;
 +(void) setMyReading:(BOOL) val;
 
++(Volume*) getTemplate:(NSString*) readingId;
++(void) buildTemplateCache;
+
 @end

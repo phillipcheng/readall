@@ -5,7 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
     <scenes>
-        <!--First View Controller-->
+        <!--First View Controller - Item-->
         <scene sceneID="hNz-n2-bh7">
             <objects>
                 <viewController automaticallyAdjustsScrollViewInsets="NO" id="9pv-A4-QxB" customClass="FirstViewController" sceneMemberID="viewController">
@@ -203,21 +203,10 @@
                                             <state key="highlighted" title="Mine" image="checkbox-pressed.png">
                                                 <color key="titleColor" cocoaTouchSystemColor="darkTextColor"/>
                                             </state>
-                                            <connections>
-                                                <action selector="myReadingClick:" destination="9pv-A4-QxB" eventType="touchUpInside" id="hy2-qu-eCF"/>
-                                            </connections>
                                         </button>
                                     </barButtonItem>
-                                    <barButtonItem enabled="NO" title="Add" id="5q7-o2-fLP">
-                                        <connections>
-                                            <action selector="addMyReadings:" destination="9pv-A4-QxB" id="lmR-Pq-MPl"/>
-                                        </connections>
-                                    </barButtonItem>
-                                    <barButtonItem enabled="NO" title="Del" id="hPt-aC-hSs">
-                                        <connections>
-                                            <action selector="delMyReadings:" destination="9pv-A4-QxB" id="yUU-BW-KzR"/>
-                                        </connections>
-                                    </barButtonItem>
+                                    <barButtonItem enabled="NO" title="Add" id="5q7-o2-fLP"/>
+                                    <barButtonItem enabled="NO" title="Del" id="hPt-aC-hSs"/>
                                 </items>
                             </toolbar>
                         </subviews>
@@ -225,7 +214,7 @@
                         <constraints>
                             <constraint firstItem="3is-rr-Pv0" firstAttribute="leading" secondItem="tsR-hK-woN" secondAttribute="leading" id="3xd-G5-8zK"/>
                             <constraint firstItem="3is-rr-Pv0" firstAttribute="top" secondItem="sUR-8x-8ik" secondAttribute="bottom" id="6ZI-QR-4OR"/>
-                            <constraint firstItem="4ug-Mw-9AY" firstAttribute="top" secondItem="3is-rr-Pv0" secondAttribute="bottom" id="7cV-8D-v1R"/>
+                            <constraint firstItem="4ug-Mw-9AY" firstAttribute="top" secondItem="3is-rr-Pv0" secondAttribute="bottom" constant="-49" id="7cV-8D-v1R"/>
                             <constraint firstItem="sUR-8x-8ik" firstAttribute="leading" secondItem="tsR-hK-woN" secondAttribute="leading" id="94p-zG-Csn"/>
                             <constraint firstItem="fV8-0Y-t7o" firstAttribute="leading" secondItem="bAE-iy-qcd" secondAttribute="trailing" id="Ef6-gJ-sIo"/>
                             <constraint firstAttribute="trailing" secondItem="3is-rr-Pv0" secondAttribute="trailing" id="Fbb-qo-wra"/>
@@ -246,40 +235,32 @@
                             <constraint firstItem="0gc-XP-9nj" firstAttribute="top" secondItem="Ia1-K6-d13" secondAttribute="bottom" id="zjC-d6-86P"/>
                         </constraints>
                     </view>
+                    <tabBarItem key="tabBarItem" title="Item" id="TB8-Ev-9sn"/>
                     <navigationItem key="navigationItem" id="Sjp-GA-ENL">
                         <nil key="title"/>
-                        <barButtonItem key="rightBarButtonItem" title="Item" id="rRa-hN-h6X">
-                            <connections>
-                                <segue destination="4eg-Sf-wIj" kind="push" id="f7f-t0-tTy"/>
-                            </connections>
-                        </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="LoginBarButton" destination="rRa-hN-h6X" id="Y4u-ez-NvB"/>
-                        <outlet property="addMyReadingsBtn" destination="5q7-o2-fLP" id="eAu-h8-iuy"/>
                         <outlet property="curPageTxt" destination="fV8-0Y-t7o" id="L06-IJ-nWI"/>
-                        <outlet property="delMyReadingsBtn" destination="hPt-aC-hSs" id="Ljd-Uq-rIX"/>
                         <outlet property="readingCV" destination="sUR-8x-8ik" id="af7-du-c1G"/>
                         <outlet property="readingLayout" destination="Cu1-hR-NmR" id="6GY-Nz-yCz"/>
                         <outlet property="searchTxt" destination="d7N-og-rzr" id="Xt0-Wp-wxW"/>
-                        <outlet property="selMyReading" destination="we6-fN-zbt" id="MB8-Cw-Pdi"/>
                         <outlet property="totalPageLbl" destination="0gc-XP-9nj" id="J4R-wX-YIe"/>
                         <segue destination="0ns-wg-a7J" kind="push" identifier="OpenBook" id="cLm-T5-FM2"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W5J-7L-Pyd" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3369" y="597"/>
+            <point key="canvasLocation" x="3913" y="701"/>
         </scene>
         <!--Login View Controller-->
         <scene sceneID="Lcg-fm-ORW">
             <objects>
-                <viewController id="4eg-Sf-wIj" customClass="LoginViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LoginViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="4eg-Sf-wIj" customClass="LoginViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="vzI-uX-q2S"/>
                         <viewControllerLayoutGuide type="bottom" id="x2r-0g-r0v"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="Y1p-3e-huc">
+                    <view key="view" contentMode="scaleToFill" restorationIdentifier="LoginViewControl" id="Y1p-3e-huc">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
@@ -361,7 +342,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FTa-NT-fXi" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3953" y="-46"/>
+            <point key="canvasLocation" x="3827" y="52"/>
         </scene>
         <!--Page View Controller-->
         <scene sceneID="hsJ-sd-pc0">
@@ -450,7 +431,7 @@
                             <constraint firstItem="k8R-TQ-pQ8" firstAttribute="leading" secondItem="M9M-Yc-JuT" secondAttribute="trailing" constant="5" id="bQa-JG-7K2"/>
                             <constraint firstItem="DxE-zT-egr" firstAttribute="leading" secondItem="krc-pa-Hu1" secondAttribute="leading" id="h6x-fu-LAH"/>
                             <constraint firstItem="k3z-m0-QvT" firstAttribute="top" secondItem="nvS-Ch-m6E" secondAttribute="bottom" id="omR-Ui-aKs"/>
-                            <constraint firstItem="y8D-zE-ihm" firstAttribute="top" secondItem="DxE-zT-egr" secondAttribute="bottom" id="p71-yJ-t4S"/>
+                            <constraint firstItem="y8D-zE-ihm" firstAttribute="top" secondItem="DxE-zT-egr" secondAttribute="bottom" constant="-49" id="p71-yJ-t4S"/>
                             <constraint firstItem="M9M-Yc-JuT" firstAttribute="leading" secondItem="lXP-Oh-L4I" secondAttribute="trailing" constant="5" id="qzT-Au-hAX"/>
                             <constraint firstItem="8a1-OM-LWH" firstAttribute="leading" secondItem="k3z-m0-QvT" secondAttribute="trailing" id="vvj-8W-3hd"/>
                         </constraints>
@@ -464,7 +445,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Jrv-cV-RUd" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3958" y="597"/>
+            <point key="canvasLocation" x="4494" y="659"/>
         </scene>
         <!--Navigation Controller - First-->
         <scene sceneID="d5O-oT-cHo">
@@ -478,12 +459,51 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="9pv-A4-QxB" kind="relationship" relationship="rootViewController" id="quW-Ek-7NW"/>
+                        <segue destination="0HE-wB-gtJ" kind="relationship" relationship="rootViewController" id="pUj-bx-dXx"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Hpt-Os-e2X" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2772" y="597"/>
+            <point key="canvasLocation" x="2832" y="775"/>
+        </scene>
+        <!--Read Tab View Controller-->
+        <scene sceneID="XFU-SU-Kak">
+            <objects>
+                <tabBarController definesPresentationContext="YES" id="0HE-wB-gtJ" customClass="ReadTabViewController" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="85Z-1b-Zjw"/>
+                    <nil key="simulatedBottomBarMetrics"/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" id="jZB-AM-piu">
+                        <rect key="frame" x="129" y="330" width="163" height="49"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="zWV-8X-J11" kind="relationship" relationship="viewControllers" id="e1c-2C-um0"/>
+                        <segue destination="9pv-A4-QxB" kind="relationship" relationship="viewControllers" id="C4t-T7-xKB"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="I3h-S9-GGc" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3283" y="775"/>
+        </scene>
+        <!--Reading List View Controller - Item 2-->
+        <scene sceneID="6w7-EX-pSG">
+            <objects>
+                <viewController id="zWV-8X-J11" customClass="ReadingListViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="uZL-ra-uaP"/>
+                        <viewControllerLayoutGuide type="bottom" id="jw9-VA-ECq"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="He6-tP-XgO">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Item 2" id="4ja-fp-Vsw"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="X7g-hC-Yba" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3759" y="1321"/>
         </scene>
     </scenes>
     <resources>
@@ -501,6 +521,6 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="quW-Ek-7NW"/>
+        <segue reference="C4t-T7-xKB"/>
     </inferredMetricsTieBreakers>
 </document>

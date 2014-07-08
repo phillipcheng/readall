@@ -9,6 +9,7 @@
 #import "PageViewController.h"
 #import "CRBookWSClient.h"
 #import "PageCondition.h"
+#import "CRApp.h"
 
 @interface PageViewController ()
 
@@ -40,7 +41,8 @@
     pc.pageNum = _curPage;
     _totalPageLbl.text = [NSString stringWithFormat:@"%d", _book.totalpage];
     _curPageTxt.text = [NSString stringWithFormat:@"%d", _curPage];
-    [_wsClient asyncGetImage:url ppParam:pc postProcessor:self];
+    NSString* referer = [CRApp getTemplate:[_book getId]].referer;
+    [_wsClient asyncGetImage:url referer:referer ppParam:pc postProcessor:self];
     
     //add loading indicator
     UIActivityIndicatorView  *av = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];

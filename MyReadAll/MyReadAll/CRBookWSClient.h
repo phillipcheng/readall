@@ -47,7 +47,7 @@ extern NSString* const EmptyParameter;
 -(void) asyncGetReadingsByParam:(NSString*) searchTxt catId:(NSString*) catId userId:(NSString*)userId offset:(int) offset
                           limit:(int) limit postProcessor:(id <SearchPostProcess>) postProcessor;
 
--(void) asyncGetImage:(NSString*) url ppParam:(id)ppParam postProcessor:(id <DownloadPostProcess>) postProcessor;
+-(void) asyncGetImage:(NSString*) url referer:(NSString*) referer ppParam:(id)ppParam postProcessor:(id <DownloadPostProcess>) postProcessor;
 
 -(void) asyncLogin:(NSString*) userId pass:(NSString*) pass postProcessor:(id<LoginPostProcess>) postProcessor;
 

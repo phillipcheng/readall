@@ -12,9 +12,11 @@
 @implementation Volume
 
 NSString* const ROOT_VOLUME_PREFIX=@"99999";
+
 NSString* const ROOT_VOLUME_LHH=@"999999";
 NSString* const ROOT_VOLUME_MH=@"999998";
 NSString* const ROOT_VOLUME_SELF=@"999997";
+NSString* const ROOT_VOLUME_XS=@"999996";
 
 NSString* const VOLUME_KEY=@"Volume";
 NSString* const VOL_ID_KEY=@"id";
@@ -24,6 +26,8 @@ NSString* const VOL_DATA_KEY=@"data";
 NSString* const VOL_CAT_KEY=@"cat";
 NSString* const VOL_AUTHOR_KEY=@"au";
 NSString* const VOL_BOOKNUM_KEY=@"bn";
+NSString* const KEY_CONTENT_XPATH=@"content_xpath";
+NSString* const KEY_REFERER=@"referer";
 
 static NSMutableDictionary* RootVolumes;
 +(NSMutableDictionary*) RootVolumes{
@@ -35,6 +39,8 @@ static NSMutableDictionary* RootVolumes;
         [RootVolumes setObject:v2 forKey:ROOT_VOLUME_MH];
         Volume* v3 = [[Volume alloc]initWithId:ROOT_VOLUME_SELF];
         [RootVolumes setObject:v3 forKey:ROOT_VOLUME_SELF];
+        Volume* v4 = [[Volume alloc]initWithId:ROOT_VOLUME_XS];
+        [RootVolumes setObject:v4 forKey:ROOT_VOLUME_XS];
     }
     return RootVolumes;
 }
@@ -87,6 +93,7 @@ static NSMutableDictionary* RootVolumes;
     _state = state;
 }
 
+
 - (void) dataToJSON{
     NSMutableDictionary* mDict = [[NSMutableDictionary alloc]init];
     if (_coverUri){
@@ -104,6 +111,8 @@ static NSMutableDictionary* RootVolumes;
     NSError* err;
     NSDictionary* dict = [NSJSONSerialization JSONObjectWithData:d options:0 error:&err];
     _coverUri = [dict objectForKey:KEY_COVER_URI];
+    _contentXPath = [dict objectForKey:KEY_CONTENT_XPATH];
+    _referer = [dict objectForKey: KEY_REFERER];
 }
 
 - (NSDictionary*) toJSONObject{

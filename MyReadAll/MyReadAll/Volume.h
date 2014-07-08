@@ -26,6 +26,8 @@ extern NSString* const VOLUME_KEY;
 @property (nonatomic) NSString* author;
 @property (nonatomic) int bookNum;
 @property (nonatomic) NSString* coverUri;
+@property (nonatomic) NSString* contentXPath;
+@property (nonatomic) NSString* referer;
 
 +(NSMutableDictionary*) RootVolumes;
 -(id)initWithId:(NSString*) volId;

@@ -308,14 +308,19 @@ int const DEL_OP=2;
     });
 }
 
--(void) asyncGetImage:(NSString*) url ppParam:(id)ppParam postProcessor:(id <DownloadPostProcess>) postProcessor {
-    if (url){
+-(void) asyncGetImage:(NSString*) strUrl referer:(NSString*)referer ppParam:(id)ppParam postProcessor:(id <DownloadPostProcess>) postProcessor {
+    if (strUrl){
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(queue, ^{
             NSError* err;
-            NSData * data = [NSData dataWithContentsOfURL:[NSURL URLWithString:url] options:NSDataReadingUncached error:&err];
+            NSURL *url = [NSURL URLWithString:strUrl];
+            NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:url];
+            [urlRequest setHTTPMethod:@"Get"];
+            [urlRequest setValue:referer forHTTPHeaderField:@"Referer"];
+            NSURLResponse *response;
+            NSData * data = [NSURLConnection sendSynchronousRequest:urlRequest returningResponse:&response error:&err];
             //call post-processor
-            [postProcessor postProcess:url result:data ppParam:ppParam err:err];
+            [postProcessor postProcess:strUrl result:data ppParam:ppParam err:err];
         });
     }
 }
@@ -351,7 +356,7 @@ int const DEL_OP=2;
     });
 }
 
--(void) asyncAddMyReading:(NSString*) userId ids:(NSArray*) ids postProcessor:(id<MyReadingsPostProcess>) postProcessor {
+-(void) asyncAddMyReading:(NSString*) userId ids:(NSMutableArray*) ids postProcessor:(id<MyReadingsPostProcess>) postProcessor {
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         int ret=0;
@@ -361,7 +366,7 @@ int const DEL_OP=2;
     });
 }
 
--(void) asyncDelMyReading:(NSString*) userId ids:(NSArray*) ids postProcessor:(id<MyReadingsPostProcess>) postProcessor {
+-(void) asyncDelMyReading:(NSString*) userId ids:(NSMutableArray*) ids postProcessor:(id<MyReadingsPostProcess>) postProcessor {
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(queue, ^{
         int ret=0;

@@ -15,6 +15,7 @@
 #import "PageViewController.h"
 #import "SearchResult.h"
 #import "CRApp.h"
+#import "AppToolBar.h"
 
 
 @interface FirstViewController () 
@@ -23,7 +24,7 @@
 @property(nonatomic) NSMutableArray* readings; //id<Reading>
 @property(nonatomic) NSMutableArray* covers;//UIImage*
 @property(nonatomic) float screenWidth;
-@property (nonatomic) NSMutableArray* selReadings; //selected readings
+@property(nonatomic) AppToolBar* appToolBar;
 @end
 
 NSString* const CELL_ID=@"Reading";
@@ -42,24 +43,10 @@ static NSString* rootCat=nil;
     }
     return rootCat;
 }
--(void) setMyReadingMode{
-    NSString* uid = [CRApp getUserId];
-    if (uid!=nil && ![@"" isEqualToString:uid]){
-        [_LoginBarButton setTitle:uid];
-        [_addMyReadingsBtn setEnabled:true];
-        [_delMyReadingsBtn setEnabled:true];
-    }else{
-        _LoginBarButton.title=@"Login";
-        [_addMyReadingsBtn setEnabled:false];
-        [_delMyReadingsBtn setEnabled:false];
-    }
-}
 
 - (void)viewDidLoad {
-    NSLog(@"viewDidLoad called");
     [super viewDidLoad];
-    [self setMyReadingMode];
-    [CRApp addAttrChangedListener:self];
+    //_curVolId is set before load
     if (_selReadings==nil) {
         _selReadings = [[NSMutableArray alloc]init];
     }
@@ -67,6 +54,9 @@ static NSString* rootCat=nil;
     _readings = [@[] mutableCopy];
     _covers = [@[] mutableCopy];
     _curPage = 1;
+    _appToolBar = [[AppToolBar alloc]init:self navCtrl:self.navigationController];
+    [self.navigationItem setRightBarButtonItems:[_appToolBar getButtonArray]];
+    
     CGRect screenRect = [[UIScreen mainScreen] bounds];
     float x=screenRect.size.width;
     float y=screenRect.size.height;
@@ -78,61 +68,10 @@ static NSString* rootCat=nil;
     [self doSearch:self];
 }
 
-- (IBAction)myReadingClick:(id)sender{
-    if ([CRApp isMyReading]){
-        [CRApp setMyReading:false];
-        [_selMyReading setSelected:false];
-    }else{
-        [CRApp setMyReading:true];
-        [_selMyReading setSelected:true];
-        //myReading starting from nil
-        _curVolId=nil;
-    }
-    [self doSearch:self];
-}
-
-- (IBAction)addMyReadings:(id)sender {
-    NSString* uid = [CRApp getUserId];
-    if (uid!=nil && ![@"" isEqualToString:uid]) {
-        [_wsClient asyncAddMyReading:uid ids:_selReadings postProcessor:self];
-    }else{
-        NSLog(@"uid is nil");
-    }
-}
-
-- (IBAction)delMyReadings:(id)sender {
-    NSString* uid = [CRApp getUserId];
-    if (uid!=nil && ![@"" isEqualToString:uid]) {
-        [_wsClient asyncDelMyReading:uid ids:_selReadings postProcessor:self];
-    }else{
-        NSLog(@"uid is nil");
-    }
-    [self doSearch:self];
-}
-
-//for myreading post process
--(void) myReadingPostProcess:(NSString*) userName ids:(NSArray*) ids rowsAffected:(int) rowsAffected err:(NSError*) err{
-    UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-    if (rowsAffected<=0){
-        alert.title = @"Error";
-        alert.message=@"might already added.";
-    }else{
-        alert.title = @"Succees";
-        alert.message = [NSString stringWithFormat: @"%d records updated.", rowsAffected];
-    }
-    [_selReadings removeAllObjects];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [alert show];
-    });
-}
-
-//for attribute changed listener
--(void) attrChanged:(id) sender attrName:(NSString*) attrName oldValue:(id) oldValue newValue:(id) newValue{
-    if (sender==[CRApp class]){
-        if ([attrName isEqualToString:@"userId"]){
-            [self setMyReadingMode];
-        }
-    }
+-(void) viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    
+    
 }
 
 - (void)didReceiveMemoryWarning {
@@ -145,18 +84,7 @@ static NSString* rootCat=nil;
     NSString* catId=_curVolId;
     if ([CRApp isMyReading]){
         userId = [CRApp getUserId];
-        if (userId==nil||[@"" isEqualToString:userId]){
-            UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-            alert.title = @"Info";
-            alert.message = @"Please login to use this feature.";
-            [alert show];
-            //set it back
-            [CRApp setMyReading:false];
-            [_selMyReading setSelected:false];
-            return;
-        }else{
-            //keep catId to nil
-        }
+        //in myreading mode, userId will not be nil
     }else{
         userId=@"";
         if (catId==nil){
@@ -281,7 +209,10 @@ static NSString* rootCat=nil;
         sc.pageNum = [[_curPageTxt text] intValue];
         sc.indexPath = indexPath;
         sc.reading = reading;
-        [_wsClient asyncGetImage:coverUrl ppParam:sc postProcessor:self];
+        
+        NSString* referer=[CRApp getTemplate:[reading getId]].referer;
+        
+        [_wsClient asyncGetImage:coverUrl referer:referer ppParam:sc postProcessor:self];
     }
     cell.imageView.image=img;
     return cell;
@@ -314,4 +245,11 @@ static NSString* rootCat=nil;
     }
 }
 
+-(NSArray*) getSelected{
+    return _selReadings;
+}
+
+- (void)navigationController:(UINavigationController *)navigationController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated{
+    
+}
 @end
