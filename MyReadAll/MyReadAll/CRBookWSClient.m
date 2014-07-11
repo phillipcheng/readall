@@ -62,9 +62,9 @@ int const DEL_OP=2;
     return self;
 }
 
--(NSArray*) getVolumesByParam:(NSString*) param userId:(NSString*) userId offset:(int) offset limit:(int) limit error:(NSError*) err{
+-(NSArray*) getVolumesByParam:(NSString*) param userId:(NSString*) userId type:(int)type offset:(int) offset limit:(int) limit error:(NSError*) err{
     userId = [CRBookWSClient convertToEmptyParam:userId];
-    NSString* url = [[NSString alloc]initWithFormat:@"%@/crbookrs/volumes/%@/%d/%d/%@/", _mainRequestUrl, param, offset, limit, userId];
+    NSString* url = [[NSString alloc]initWithFormat:@"%@/crbookrs/volumes/%@/%d/%d/%@/%d/", _mainRequestUrl, param, offset, limit, userId, type];
     NSURLRequest *theRequest=[NSURLRequest requestWithURL:[NSURL URLWithString:url]
                                               cachePolicy:NSURLRequestUseProtocolCachePolicy
                                           timeoutInterval:_timeout];
@@ -89,18 +89,19 @@ int const DEL_OP=2;
     //get by cat not linked with my reading
     NSString* escapedName = [pcat stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString* param = [[NSString alloc]initWithFormat:@"%@%@", @"cat/", escapedName];
-    return [self getVolumesByParam:param userId:@"" offset:offset limit:limit error:err];
+    return [self getVolumesByParam:param userId:@"" type:-1 offset:offset limit:limit error:err];
 }
--(NSArray*) getVolumesLike:(NSString*) likeParam userId:(NSString*) userId offset:(int) offset limit:(int) limit error:(NSError *)err{
+-(NSArray*) getVolumesLike:(NSString*) likeParam userId:(NSString*) userId type:(int)type
+                    offset:(int) offset limit:(int) limit error:(NSError *)err{
     likeParam =[CRBookWSClient convertToEmptyParam:likeParam];
     NSString* escapedName = [likeParam stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString* param = [[NSString alloc]initWithFormat:@"%@%@", @"like/", escapedName];
-    return [self getVolumesByParam:param userId:userId offset:offset limit:limit error:err];
+    return [self getVolumesByParam:param userId:userId type:type offset:offset limit:limit error:err];
 }
 
--(int) getCountByParam:(NSString*) param userId:(NSString*) userId error:(NSError*) err{
+-(int) getCountByParam:(NSString*) param userId:(NSString*) userId type:(int)type error:(NSError*) err{
     userId = [CRBookWSClient convertToEmptyParam:userId];
-    NSString* url = [[NSString alloc]initWithFormat:@"%@/crbookrs/%@/%@/", _mainRequestUrl, param, userId];
+    NSString* url = [[NSString alloc]initWithFormat:@"%@/crbookrs/%@/%@/%d/", _mainRequestUrl, param, userId, type];
     NSURLRequest *theRequest=[NSURLRequest requestWithURL:[NSURL URLWithString:url]
                                               cachePolicy:NSURLRequestUseProtocolCachePolicy
                                           timeoutInterval:_timeout];
@@ -115,13 +116,13 @@ int const DEL_OP=2;
     //get by cat not linked with my reading
     NSString* escapedName = [pcat stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString* param = [[NSString alloc]initWithFormat:@"%@%@", @"volumesCount/cat/", escapedName];
-    return [self getCountByParam:param userId:@"" error:err];
+    return [self getCountByParam:param userId:@"" type:-1 error:err];
 }
--(int) getVCLike:(NSString*) likeParam userId:(NSString*) userId error:(NSError *)err{
+-(int) getVCLike:(NSString*) likeParam userId:(NSString*) userId type:(int) type error:(NSError *)err{
     likeParam = [CRBookWSClient convertToEmptyParam:likeParam];
     NSString* escapedName = [likeParam stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString* param = [[NSString alloc]initWithFormat:@"%@%@", @"volumesCount/like/", escapedName];
-    return [self getCountByParam:param userId:userId error:err];
+    return [self getCountByParam:param userId:userId type:type error:err];
 }
 
 -(Volume*) getVolumeById:(NSString*) volId error:(NSError *)err{
@@ -140,9 +141,10 @@ int const DEL_OP=2;
     return volume;
 }
 
--(NSArray*) getBooksByParam:(NSString*) param userId:(NSString*) userId offset:(int)offset limit:(int) limit error:(NSError*) err{
+-(NSArray*) getBooksByParam:(NSString*) param userId:(NSString*) userId type:(int)type
+                     offset:(int)offset limit:(int) limit error:(NSError*) err{
     userId = [CRBookWSClient convertToEmptyParam:userId];
-    NSString* url = [[NSString alloc]initWithFormat:@"%@/crbookrs/books/%@/%d/%d/%@/", _mainRequestUrl, param, offset, limit, userId];
+    NSString* url = [[NSString alloc]initWithFormat:@"%@/crbookrs/books/%@/%d/%d/%@/%d/", _mainRequestUrl, param, offset, limit, userId, type];
     NSURLRequest *theRequest=[NSURLRequest requestWithURL:[NSURL URLWithString:url]
                                               cachePolicy:NSURLRequestUseProtocolCachePolicy
                                           timeoutInterval:_timeout];
@@ -163,29 +165,29 @@ int const DEL_OP=2;
     return retArray;
 
 }
--(NSArray*) getBooksByName:(NSString*) name userId:(NSString*) userId offset:(int)offset limit:(int) limit error:(NSError *)err{
+-(NSArray*) getBooksByName:(NSString*) name userId:(NSString*) userId type:(int)type offset:(int)offset limit:(int) limit error:(NSError *)err{
     name = [CRBookWSClient convertToEmptyParam:name];
     NSString* escapedName = [name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString* param = [[NSString alloc]initWithFormat:@"%@%@", @"name/", escapedName];
-    return [self getBooksByParam:param userId:userId offset:offset limit:limit error:err];
+    return [self getBooksByParam:param userId:userId type:type offset:offset limit:limit error:err];
 }
 -(NSArray*) getBooksByCat:(NSString*) catId offset:(int)offset limit:(int) limit error:(NSError *)err{
     //get by cat not linked with my reading
     NSString* escapedName = [catId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString* param = [[NSString alloc]initWithFormat:@"%@%@", @"cat/", escapedName];
-    return [self getBooksByParam:param userId:@"" offset:offset limit:limit error:err];
+    return [self getBooksByParam:param userId:@"" type:-1 offset:offset limit:limit error:err];
 }
--(int) getBCByName:(NSString*) name userId:(NSString*) userId error:(NSError *)err{
+-(int) getBCByName:(NSString*) name userId:(NSString*) userId type:(int)type error:(NSError *)err{
     name = [CRBookWSClient convertToEmptyParam:name];
     NSString* escapedName = [name stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString* param = [[NSString alloc]initWithFormat:@"%@%@", @"booksCount/name/", escapedName];
-    return [self getCountByParam:param userId:userId error:err];
+    return [self getCountByParam:param userId:userId type:type error:err];
 }
 -(int) getBCByCat:(NSString*) catId error:(NSError *)err{
     //get by cat not linked with my reading
     NSString* escapedName = [catId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString* param = [[NSString alloc]initWithFormat:@"%@%@", @"booksCount/cat/", escapedName];
-    return [self getCountByParam:param userId:@"" error:err];
+    return [self getCountByParam:param userId:@"" type:-1 error:err];
 }
 -(Book*) getBookById:(NSString*) bookId error:(NSError *)err{
     NSString* escapedId = [bookId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -276,7 +278,7 @@ int const DEL_OP=2;
 }
 
 //public async methods
--(void) asyncGetReadingsByParam:(NSString*) searchTxt catId:(NSString*) catId userId:(NSString*) userId offset:(int) offset limit:(int) limit postProcessor:(id <SearchPostProcess>) postProcessor{
+-(void) asyncGetReadingsByParam:(NSString*) searchTxt catId:(NSString*) catId userId:(NSString*) userId type:(int) type offset:(int) offset limit:(int) limit postProcessor:(id <SearchPostProcess>) postProcessor{
     //catId is nil means using param to search with userId
     //catId is not nil means search with catId without userId
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
@@ -284,20 +286,23 @@ int const DEL_OP=2;
         NSMutableArray* readings = [[NSMutableArray alloc]init];
         NSError* err;
         int count=0;
-        if (catId){
+        if ((searchTxt!=nil && ![@"" isEqualToString:searchTxt])||//search by text
+            ([CRApp isMyReading]&&(catId==nil)))//root level my reading list
+        {
+            //search by text, userId will be handled by server
+            [readings addObjectsFromArray:[self getVolumesLike:searchTxt userId:userId type:type offset:offset limit:limit error:err]];
+            [readings addObjectsFromArray:[self getBooksByName:searchTxt userId:userId type:type offset:offset limit:limit error:err]];
+            
+            //
+            count = [self getVCLike:searchTxt userId:userId type:type error:err];
+            count += [self getBCByName:searchTxt userId:userId type:type error:err];
+        }else{
+            //search by cat, no userId needed, root level my reading list will be handled by previous block
             [readings addObjectsFromArray:[self getVolumesByPCat:catId offset:offset limit:limit error:err]];
             [readings addObjectsFromArray:[self getBooksByCat:catId offset:offset limit:limit error:err]];
             //
             count = [self getVCByPCat:catId error:err];
             count += [self getBCByCat:catId error:err];
-        }else{
-            [readings addObjectsFromArray:[self getVolumesLike:searchTxt userId:userId offset:offset limit:limit error:err]];
-            [readings addObjectsFromArray:[self getBooksByName:searchTxt userId:userId offset:offset limit:limit error:err]];
-            
-            //
-            count = [self getVCLike:searchTxt userId:userId error:err];
-            count += [self getBCByName:searchTxt userId:userId error:err];
-            
         }
         SearchResult* sr = [[SearchResult alloc]init];
         sr.readings = readings;

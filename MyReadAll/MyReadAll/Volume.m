@@ -93,6 +93,15 @@ static NSMutableDictionary* RootVolumes;
     _state = state;
 }
 
+-(int)getType{
+    return _type;
+}
+-(void)setType: (int) type{
+    _type = type;
+}
+-(NSString*)getAuthor{
+    return _author;
+}
 
 - (void) dataToJSON{
     NSMutableDictionary* mDict = [[NSMutableDictionary alloc]init];
@@ -118,6 +127,7 @@ static NSMutableDictionary* RootVolumes;
 - (NSDictionary*) toJSONObject{
     NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
     [dict setObject:_volId forKey:[NSString stringWithFormat:@"%@%@", AT, VOL_ID_KEY]];
+    [dict setObject:[NSNumber numberWithInt:_type] forKey:[NSString stringWithFormat:@"%@%@", AT, KEY_TYPE]];
     [dict setObject:_name forKey:[NSString stringWithFormat:@"%@%@", AT, VOL_NAME_KEY]];
     [dict setObject:_utime forKey:[NSString stringWithFormat:@"%@%@", AT, VOL_UTIME_KEY]];
     [dict setObject:_data forKey:[NSString stringWithFormat:@"%@%@", AT, VOL_DATA_KEY]];
@@ -128,8 +138,8 @@ static NSMutableDictionary* RootVolumes;
 }
 
 -(NSString*) description{
-    NSString* desc=[NSString stringWithFormat:@"volId:%@, name:%@, utime:%@, data:%@, pcat:%@, author:%@, bookNum:%d, coverUri:%@",
-                    _volId, _name, _utime, _data, _pCat, _author, _bookNum, _coverUri];
+    NSString* desc=[NSString stringWithFormat:@"volId:%@, type:%d, name:%@, utime:%@, data:%@, pcat:%@, author:%@, bookNum:%d, coverUri:%@",
+                    _volId, _type, _name, _utime, _data, _pCat, _author, _bookNum, _coverUri];
     return desc;
 }
 
@@ -144,6 +154,7 @@ static NSMutableDictionary* RootVolumes;
 
 - (void) fromTopJSONObject:(NSDictionary*) dict{
     _volId = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_ID_KEY]];
+    _type = [[dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, KEY_TYPE]] intValue];
     _name = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_NAME_KEY]];
     _utime = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_UTIME_KEY]];
     _data = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, VOL_DATA_KEY]];

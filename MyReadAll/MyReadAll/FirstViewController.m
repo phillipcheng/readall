@@ -7,42 +7,17 @@
 //
 
 #import "FirstViewController.h"
-#import "CRBookWSClient.h"
-#import "ReadingViewCell.h"
 #import "FileCache.h"
-#import "SearchCondition.h"
 #import "Volume.h"
 #import "PageViewController.h"
 #import "SearchResult.h"
-#import "CRApp.h"
-#import "AppToolBar.h"
 
 
 @interface FirstViewController () 
-            
-@property(nonatomic) CRBookWSClient* wsClient;
-@property(nonatomic) NSMutableArray* readings; //id<Reading>
-@property(nonatomic) NSMutableArray* covers;//UIImage*
 @property(nonatomic) float screenWidth;
-@property(nonatomic) AppToolBar* appToolBar;
 @end
 
-NSString* const CELL_ID=@"Reading";
-
 @implementation FirstViewController
-
-static int columnNum = 3;
-static NSString* rootCat=nil;
-
-+(NSString*) getRootCatList{
-    if (rootCat==nil||[@"" isEqualToString:rootCat]){
-        rootCat = [[NSString alloc]init];
-        rootCat = [rootCat stringByAppendingFormat:@"999999"];
-        rootCat = [rootCat stringByAppendingFormat:@","];
-        rootCat = [rootCat stringByAppendingFormat:@"999998"];
-    }
-    return rootCat;
-}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -52,26 +27,27 @@ static NSString* rootCat=nil;
     }
     _wsClient = [CRApp getWSClient];
     _readings = [@[] mutableCopy];
-    _covers = [@[] mutableCopy];
     _curPage = 1;
     _appToolBar = [[AppToolBar alloc]init:self navCtrl:self.navigationController];
     [self.navigationItem setRightBarButtonItems:[_appToolBar getButtonArray]];
     
-    CGRect screenRect = [[UIScreen mainScreen] bounds];
-    float x=screenRect.size.width;
-    float y=screenRect.size.height;
-    _screenWidth = x<y?x:y;//always set to smaller dimension
-    int width = _screenWidth/columnNum -_readingLayout.minimumInteritemSpacing;
-    int height = width*3/2;
-    NSLog(@"reading collection view width: %d, height:%d", width, height);//collection view bounds in pixel
-    [self.readingLayout setItemSize:CGSizeMake(width, height)];//item size in points
-    [self doSearch:self];
+    //set type, columnNum by subClass
+    
 }
 
 -(void) viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
-    
-    
+    CGRect screenRect = [[UIScreen mainScreen] bounds];
+    float x=screenRect.size.width;
+    float y=screenRect.size.height;
+    _screenWidth = x<y?x:y;//always set to smaller dimension
+    int width = _screenWidth/_columnNum -_readingLayout.minimumInteritemSpacing;
+    int height = _height;
+    if (_type==TYPE_PIC)
+        height = width*3/2;
+    NSLog(@"reading collection view width: %d, height:%d", width, height);//collection view bounds in pixel
+    [self.readingLayout setItemSize:CGSizeMake(width, height)];//item size in points
+    [self doSearch:self];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -88,12 +64,12 @@ static NSString* rootCat=nil;
     }else{
         userId=@"";
         if (catId==nil){
-            catId=[FirstViewController getRootCatList];
+            catId=[self getRootCatList];
         }
     }
     
     int itemOffset = (_curPage-1)* CRApp.itemsPerPage;
-    [_wsClient asyncGetReadingsByParam:[_searchTxt text] catId:catId userId:userId offset:itemOffset limit:CRApp.itemsPerPage postProcessor:self];
+    [_wsClient asyncGetReadingsByParam:[_searchTxt text] catId:catId userId:userId type:_type offset:itemOffset limit:CRApp.itemsPerPage postProcessor:self];
     dispatch_async(dispatch_get_main_queue(), ^{
         _curPageTxt.text = [NSString stringWithFormat:@"%d", _curPage];
     });
@@ -118,52 +94,25 @@ static NSString* rootCat=nil;
         [self doSearch:sender];
     }
 }
-
-
 //post process for the list of reading get from search
 -(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit
              result:(SearchResult*) result err:(NSError *)err{
-    [_readings removeAllObjects];
-    [_readings addObjectsFromArray:result.readings];
-    //populate the corresponding cover image array with NSNull
-    [_covers removeAllObjects];
-    for (int i=0; i<[result.readings count]; i++) {
-        [_covers addObject:[NSNull null]];
-    }
-    
+    [self.readings removeAllObjects];
+    [self.readings addObjectsFromArray:result.readings];
     int itemsPerPage = CRApp.itemsPerPage;
     if (result.count%itemsPerPage==0){
-        _totalPage = result.count/itemsPerPage;
+        self.totalPage = result.count/itemsPerPage;
     }else{
-        _totalPage = result.count/itemsPerPage + 1;
+        self.totalPage = result.count/itemsPerPage + 1;
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [_readingCV reloadData];
-        _totalPageLbl.text = [NSString stringWithFormat:@"%d", _totalPage];
+        [self.readingCV reloadData];
+        self.totalPageLbl.text = [NSString stringWithFormat:@"%d", self.totalPage];
     });
 }
 
-//post process for the cover image
--(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam err:(NSError *)err{
-    UIImage* img = [UIImage imageWithData:result];
-    SearchCondition* sc=(SearchCondition*)ppParam;
-    if (([sc.searchTxt isEqualToString:[_searchTxt text]]||(sc.searchTxt==[_searchTxt text]))
-        //&& ([sc.volId isEqualToString:_curVolId])
-             &&(sc.pageNum == [[_curPageTxt text]intValue])
-                && (img!=nil)){
-        [_covers setObject:img atIndexedSubscript:[sc.indexPath row]];
-        dispatch_queue_t main = dispatch_get_main_queue();
-        dispatch_block_t block = ^{
-            [_readingCV reloadItemsAtIndexPaths:@[sc.indexPath]];
-        };
-        if ([NSThread isMainThread]){
-            block();
-        }else{
-            dispatch_async(main, block);
-        }
-    }
-}
+
 
 #pragma mark - UICollectionView Datasource
 // 1
@@ -174,49 +123,7 @@ static NSString* rootCat=nil;
 - (NSInteger)numberOfSectionsInCollectionView: (UICollectionView *)collectionView {
     return 1;
 }
-//process for each cells
-- (UICollectionViewCell *)collectionView:(UICollectionView *)cv cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    ReadingViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:CELL_ID forIndexPath:indexPath];
-    cell.backgroundColor = [UIColor whiteColor];
-    id<Reading> reading=_readings[indexPath.row];
-    //this cell may be reused, i need to check
-    [cell setRid:[reading getId]];
-    [cell setSelReadings:_selReadings];
-    
-    if ([reading isKindOfClass:[Book class]]){
-        Book* b = (Book*)reading;
-        cell.imageLabel.text = [NSString stringWithFormat:@"%@(%d)", b.bookName, b.totalpage];
-    }else if ([reading isKindOfClass:[Volume class]]){
-        cell.readingTypeImageView.image = [UIImage imageNamed:@"book_volume.jpg"];
-        Volume* v = (Volume*)reading;
-        cell.imageLabel.text = [NSString stringWithFormat:@"%@(%d)", v.name, v.bookNum];
-    }
-    [cell myInit];
-    NSString* coverUrl=[reading getCoverUri];
-    if (coverUrl==nil && [reading isKindOfClass:[Book class]]){
-        coverUrl = [((Book*)reading) getPageUrl:1];
-    }
-    if (coverUrl==nil){
-        NSLog(@"cover url not found for: %@", [reading description]);
-    }
-    id img = [_covers objectAtIndex:[indexPath row]];
-    if (img==[NSNull null]){
-        img = [UIImage imageNamed:@"empty_cover.jpg"];
-        //
-        SearchCondition* sc = [[SearchCondition alloc]init];
-        sc.searchTxt=[_searchTxt text];
-        sc.volId = _curVolId;
-        sc.pageNum = [[_curPageTxt text] intValue];
-        sc.indexPath = indexPath;
-        sc.reading = reading;
-        
-        NSString* referer=[CRApp getTemplate:[reading getId]].referer;
-        
-        [_wsClient asyncGetImage:coverUrl referer:referer ppParam:sc postProcessor:self];
-    }
-    cell.imageView.image=img;
-    return cell;
-}
+
 
 #pragma mark - UICollectionViewDelegate
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath

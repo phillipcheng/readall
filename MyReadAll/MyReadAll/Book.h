@@ -11,20 +11,7 @@
 
 @interface Book: NSObject <Reading>
 
-//extern NSString* const NAME_NONAME;
 extern NSString* const BOOK_KEY;
-//extern NSString* const ID_KEY;
-//extern NSString* const NAME_KEY;
-//extern NSString* const TotalPage_KEY;
-//extern NSString* const LastReadPage_KEY;
-//extern NSString* const IndexedPage_KEY;
-//extern NSString* const UTIME_KEY;
-//extern NSString* const DATA_KEY;
-//extern NSString* const CAT_KEY;
-//extern NSString* const FULL_PATH_KEY;
-//extern NSString* const READ_KEY;
-//extern NSString* const CACHED_KEY;
-//
 
 
 @property (nonatomic) int state;
@@ -44,6 +31,8 @@ extern NSString* const BOOK_KEY;
 @property (nonatomic) NSString* bUrl;
 @property (nonatomic) NSString* sUrl;
 @property (nonatomic) PatternResult* pageBgUrlPattern;
+@property (nonatomic) int type;
+@property (nonatomic) NSString* author;
 
 -(NSString*) getPageUrl:(int) pageNum;
 

@@ -71,6 +71,16 @@ NSString* const KEY_EACH_PAGE_URL = @"p";
     _state = state;
 }
 
+- (int) getType{
+    return _type;
+}
+-(void)setType:(int)type{
+    _type = type;
+}
+-(NSString*)getAuthor{
+    return _author;
+}
+
 - (void) dataToJSON{
     NSMutableDictionary* mDict = [[NSMutableDictionary alloc]init];
     if (_coverUri){
@@ -112,6 +122,7 @@ NSString* const KEY_EACH_PAGE_URL = @"p";
 - (NSDictionary*) toJSONObject{
     NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
     [dict setObject:_bookId forKey:[NSString stringWithFormat:@"%@%@", AT, ID_KEY]];
+    [dict setObject:[NSNumber numberWithInt:_type]  forKey:[NSString stringWithFormat:@"%@%@", AT, KEY_TYPE]];
     [dict setObject:_bookName forKey:[NSString stringWithFormat:@"%@%@", AT, NAME_KEY]];
     [dict setObject:[NSNumber numberWithInt:_totalpage] forKey:[NSString stringWithFormat:@"%@%@", AT, TotalPage_KEY]];
     [dict setObject:[NSNumber numberWithInt:_lastpage] forKey:[NSString stringWithFormat:@"%@%@", AT, LastReadPage_KEY]];
@@ -125,9 +136,9 @@ NSString* const KEY_EACH_PAGE_URL = @"p";
 }
 
 -(NSString*) description{
-    NSString* desc=[NSString stringWithFormat:@"bookId:%@, bookName:%@, totalpage:%d, lastpage:%d, utime:%@, data:%@, \
+    NSString* desc=[NSString stringWithFormat:@"bookId:%@, type:%d, bookName:%@, totalpage:%d, lastpage:%d, utime:%@, data:%@, \
                     cat:%@, read:%d, cached:%d, indexedPages:%d, coverUri:%@, stickerDir:%@, bUrl:%@, sUrl:%@, bgUrlPattern:%@",
-                    _bookId, _bookName, _totalpage, _lastpage, _utime, _data, _cat, _read, _cached, _indexedPages,
+                    _bookId, _type, _bookName, _totalpage, _lastpage, _utime, _data, _cat, _read, _cached, _indexedPages,
                     _coverUri, _stickerDir, _bUrl, _sUrl, [_pageBgUrlPattern description]];
     return desc;
 }
@@ -143,6 +154,7 @@ NSString* const KEY_EACH_PAGE_URL = @"p";
 
 - (void) fromTopJSONObject:(NSDictionary*) dict{
     _bookId = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, ID_KEY]];
+    _type = [[dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, KEY_TYPE]] intValue];
     _bookName = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, NAME_KEY]];
     _utime = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, UTIME_KEY]];
     _data = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, DATA_KEY]];

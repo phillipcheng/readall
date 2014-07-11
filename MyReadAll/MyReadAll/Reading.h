@@ -9,10 +9,9 @@
 
 @protocol Reading <IJSON>
 
-extern const int STATE_ONLINE;
-extern const int STATE_OFFLINE;
-extern const int STATE_BOTH;
+
 extern NSString* const KEY_COVER_URI;
+extern NSString* const KEY_TYPE;
 extern NSString* const AT;
 
 - (NSString*) getFullPath;
@@ -28,7 +27,15 @@ extern NSString* const AT;
 - (NSString*) getUtime;
 - (NSString*) getData;
 
+extern const int STATE_ONLINE;
+extern const int STATE_OFFLINE;
+extern const int STATE_BOTH;
 - (int) getState;
 - (void) setState: (int) state;
+-(NSString*) getAuthor;
+
+extern const int TYPE_PIC;
+extern const int TYPE_NOVEL;
+- (int) getType;
 
 @end

@@ -31,14 +31,20 @@
 -(void) attrChanged:(id) sender attrName:(NSString*) attrName oldValue:(id) oldValue newValue:(id) newValue{
     if (sender==[CRApp class]){
         if ([attrName isEqualToString:@"userId"]){
-            [self setMyReadingMode];
+            [self setUserId];
         }
     }
 }
 
 - (NSArray*) getButtonArray;
 {
-    _loginBarButton = [[UIBarButtonItem alloc] initWithTitle:@"Login" style:UIBarButtonItemStyleBordered target:self action:@selector(loginClick)];
+    NSString* loginTitle=@"Login";
+    NSString* userId = [CRApp getUserId];
+    if (userId!=nil && ![@"" isEqualToString:userId]){
+        loginTitle = userId;
+    }
+    
+    _loginBarButton = [[UIBarButtonItem alloc] initWithTitle:loginTitle style:UIBarButtonItemStyleBordered target:self action:@selector(loginClick)];
     
     _selMyReadingsBBItem= [[UIBarButtonItem alloc] initWithTitle:@"All" style:UIBarButtonItemStyleBordered target:self action:@selector(myReadingClick)];
     
@@ -54,7 +60,7 @@
     [_navCtrl pushViewController:loginVC animated:TRUE];
 }
 
--(void) setMyReadingMode{
+-(void) setUserId{
     NSString* uid = [CRApp getUserId];
     if (uid!=nil && ![@"" isEqualToString:uid]){
         [_loginBarButton setTitle:uid];

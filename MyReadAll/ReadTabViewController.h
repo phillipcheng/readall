@@ -7,7 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "AppToolBar.h"
+#import "SelectableCollection.h"
 
 @interface ReadTabViewController : UITabBarController
-
+@property (nonatomic) AppToolBar* appToolBar;
 @end

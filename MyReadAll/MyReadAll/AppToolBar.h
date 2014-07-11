@@ -19,6 +19,6 @@
 
 -(id) init:(id<SelectableCollection>) selectableCollection navCtrl:(UINavigationController*)navCtrl;
 -(NSArray*) getButtonArray;
--(void) setMyReadingMode;
+-(void) setUserId;
 
 @end

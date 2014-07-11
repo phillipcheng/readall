@@ -32,7 +32,9 @@
     dispatch_async(queue, ^{
         [CRApp buildTemplateCache];
     });
-
+    
+    _appToolBar = [[AppToolBar alloc]init:(id<SelectableCollection>)[self selectedViewController] navCtrl:self.navigationController];
+    [self.navigationItem setRightBarButtonItems:[_appToolBar getButtonArray]];
 }
 
 - (void)didReceiveMemoryWarning

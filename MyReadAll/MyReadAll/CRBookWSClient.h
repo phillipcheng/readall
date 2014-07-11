@@ -25,14 +25,14 @@ extern NSString* const EmptyParameter;
 
 //
 -(NSArray*) getVolumesByPCat:(NSString*) pcat offset:(int) offset limit:(int) limit error:(NSError*)err;
--(NSArray*) getVolumesLike:(NSString*) param userId:(NSString*) userId offset:(int) offset limit:(int) limit error:(NSError*)err;
+-(NSArray*) getVolumesLike:(NSString*) param userId:(NSString*) userId type:(int) type offset:(int) offset limit:(int) limit error:(NSError*)err;
 -(int) getVCByPCat:(NSString*) pcat error:(NSError*)err;
--(int) getVCLike:(NSString*) param userId:(NSString*) userId error:(NSError*)err;
+-(int) getVCLike:(NSString*) param userId:(NSString*) userId type:(int) type error:(NSError*)err;
 
 //
--(NSArray*) getBooksByName:(NSString*) name userId:(NSString*)userId offset:(int)offset limit:(int) limit error:(NSError*)err;
+-(NSArray*) getBooksByName:(NSString*) name userId:(NSString*)userId type:(int)type offset:(int)offset limit:(int) limit error:(NSError*)err;
 -(NSArray*) getBooksByCat:(NSString*) catId offset:(int)offset limit:(int) limit error:(NSError*)err;
--(int) getBCByName:(NSString*) name userId:(NSString*)userId error:(NSError*)err;
+-(int) getBCByName:(NSString*) name userId:(NSString*)userId type:(int)type error:(NSError*)err;
 -(int) getBCByCat:(NSString*) catId error:(NSError*)err;
 //
 -(NSString*) login:(NSString*) device userId:(NSString*)userId password:(NSString*)password stime:(NSString*) stime error:(NSError*)err;
@@ -44,8 +44,7 @@ extern NSString* const EmptyParameter;
 -(int) deleteMyReadings:(NSString*)userId ids:(NSArray*) ids error:(NSError*)err;
 
 //public async methods
--(void) asyncGetReadingsByParam:(NSString*) searchTxt catId:(NSString*) catId userId:(NSString*)userId offset:(int) offset
-                          limit:(int) limit postProcessor:(id <SearchPostProcess>) postProcessor;
+-(void) asyncGetReadingsByParam:(NSString*) searchTxt catId:(NSString*) catId userId:(NSString*)userId type:(int)type offset:(int) offset limit:(int) limit postProcessor:(id <SearchPostProcess>) postProcessor;
 
 -(void) asyncGetImage:(NSString*) url referer:(NSString*) referer ppParam:(id)ppParam postProcessor:(id <DownloadPostProcess>) postProcessor;
 

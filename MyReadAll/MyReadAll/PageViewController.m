@@ -8,12 +8,10 @@
 
 #import "PageViewController.h"
 #import "CRBookWSClient.h"
-#import "PageCondition.h"
 #import "CRApp.h"
 
 @interface PageViewController ()
 
-@property(nonatomic) CRBookWSClient* wsClient;
 
 @end
 
@@ -32,6 +30,10 @@
 {
     [super viewDidLoad];
     _wsClient = [[CRBookWSClient alloc]init];
+    //add loading indicator
+    _av = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    _av.frame=CGRectMake(145, 160, 25, 25);
+    _av.tag  = 1;
 }
 
 -(void) doSearch{
@@ -41,15 +43,8 @@
     pc.pageNum = _curPage;
     _totalPageLbl.text = [NSString stringWithFormat:@"%d", _book.totalpage];
     _curPageTxt.text = [NSString stringWithFormat:@"%d", _curPage];
-    NSString* referer = [CRApp getTemplate:[_book getId]].referer;
-    [_wsClient asyncGetImage:url referer:referer ppParam:pc postProcessor:self];
-    
-    //add loading indicator
-    UIActivityIndicatorView  *av = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    av.frame=CGRectMake(145, 160, 25, 25);
-    av.tag  = 1;
-    [_imageView addSubview:av];
-    [av startAnimating];
+    [self doMySearch:url pageCondition:pc];
+
 }
 
 -(void)viewDidAppear:(BOOL)animated {
@@ -57,15 +52,12 @@
 }
 
 -(void) postProcess:(NSString*) url result:(NSData*) result ppParam:(id) ppParam err:(NSError *)err{
-    UIImage* img = [UIImage imageWithData:result];
     PageCondition* pc=(PageCondition*)ppParam;
-    if ((pc.book==_book) && (pc.pageNum == _curPage)
-        && (img!=nil)){
+    if ((pc.book==_book) && (pc.pageNum == _curPage)){
             dispatch_async(dispatch_get_main_queue(), ^{
-                self.imageView.image = img;
+                [self doMyPostProcess:result];
                 //remove the loading indicator
-                UIActivityIndicatorView *tmpimg = (UIActivityIndicatorView *)[_imageView viewWithTag:1];
-                [tmpimg removeFromSuperview];
+                [_av removeFromSuperview];
             });
     }
 }

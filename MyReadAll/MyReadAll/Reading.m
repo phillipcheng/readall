@@ -14,4 +14,9 @@ const int STATE_OFFLINE=1;
 const int STATE_BOTH=2;
 
 NSString* const KEY_COVER_URI=@"coverUri";
+NSString* const KEY_TYPE=@"type";
 NSString* const AT=@"@";
+
+const int TYPE_PIC=1;
+const int TYPE_NOVEL=2;
+
