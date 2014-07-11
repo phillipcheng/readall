@@ -7,12 +7,24 @@
 //
 
 #import "ReadingListViewController.h"
+#import "ReadingRowCell.h"
 
 @interface ReadingListViewController ()
-@property (nonatomic) NSMutableArray* selReadings; //selected readings
 @end
 
+NSString* const ROW_CELL_ID=@"ReadingRowCell";
+
 @implementation ReadingListViewController
+
+static NSString* rootCat=nil;
+
+-(NSString*) getRootCatList{
+    if (rootCat==nil||[@"" isEqualToString:rootCat]){
+        rootCat = [[NSString alloc]init];
+        rootCat = [rootCat stringByAppendingFormat:@"999996"];
+    }
+    return rootCat;
+}
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -26,7 +38,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    [super setType:TYPE_NOVEL];
+    [super setColumnNum:1];
+    [super setHeight:30];
 }
 
 - (void)didReceiveMemoryWarning
@@ -35,6 +49,26 @@
     // Dispose of any resources that can be recreated.
 }
 
+//post process for the list of reading get from search
+-(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit
+             result:(SearchResult*) result err:(NSError *)err{
+    [super postProcess:searchTxt searchCat:catId offset:offset limit:limit result:result err:err];
+}
+
+//process for each cells
+- (UICollectionViewCell *)collectionView:(UICollectionView *)cv cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    ReadingRowCell *cell = [cv dequeueReusableCellWithReuseIdentifier:ROW_CELL_ID forIndexPath:indexPath];
+    cell.backgroundColor = [UIColor whiteColor];
+    id<Reading> reading=self.readings[indexPath.row];
+    //this cell may be reused, i need to check
+    [cell setRid:[reading getId]];
+    [cell setSelReadings:self.selReadings];
+    [cell myInit];
+    cell.titleLbl.text = [reading getName];
+    cell.authorLbl.text = [reading getAuthor];
+    cell.itemNumLbl.text = [NSString stringWithFormat:@"%d", [reading getItemNum]];
+    return cell;
+}
 /*
 #pragma mark - Navigation
 
@@ -45,9 +79,5 @@
     // Pass the selected object to the new view controller.
 }
 */
-
--(NSArray*) getSelected{
-    return _selReadings;
-}
 
 @end

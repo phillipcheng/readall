@@ -7,8 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SelectableCollection.h"
+#import "FirstViewController.h"
 
-@interface ReadingListViewController : UIViewController<SelectableCollection, UINavigationControllerDelegate>
-
+@interface ReadingListViewController : FirstViewController
 @end
