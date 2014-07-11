@@ -114,7 +114,9 @@ static NSMutableDictionary* RootVolumes;
         _data = [[NSString alloc] initWithData:nsData encoding:NSUTF8StringEncoding];
     }
 }
-
+-(int)getItemNum{
+    return _bookNum;
+}
 - (void) dataFromJSON{
     NSData* d = [_data dataUsingEncoding:NSUTF8StringEncoding];
     NSError* err;

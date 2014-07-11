@@ -24,6 +24,8 @@ NSString* const CAT_KEY = @"cat";
 NSString* const FULL_PATH_KEY = @"fp";
 NSString* const READ_KEY = @"read";
 NSString* const CACHED_KEY = @"cached";
+NSString* const AUTHOR_KEY = @"author";
+
 
 NSString* const KEY_STICKER_DIR = @"stickerDir";
 NSString* const KEY_BASE_URL = @"bUrl";
@@ -143,6 +145,10 @@ NSString* const KEY_EACH_PAGE_URL = @"p";
     return desc;
 }
 
+-(int)getItemNum{
+    return _totalpage;
+}
+
 -(NSString*) toTopJSONString{
     NSDictionary* dict = [self toJSONObject];
     NSMutableDictionary* topDict = [[NSMutableDictionary alloc]init];
@@ -158,6 +164,7 @@ NSString* const KEY_EACH_PAGE_URL = @"p";
     _bookName = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, NAME_KEY]];
     _utime = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, UTIME_KEY]];
     _data = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, DATA_KEY]];
+    _author = [dict objectForKey:[NSString stringWithFormat:@"%@%@", AT, AUTHOR_KEY]];
     
     [self dataFromJSON];
     

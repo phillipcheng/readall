@@ -26,6 +26,7 @@ extern NSString* const AT;
 - (NSString*) getId;
 - (NSString*) getUtime;
 - (NSString*) getData;
+- (int) getItemNum; //get the subitem number
 
 extern const int STATE_ONLINE;
 extern const int STATE_OFFLINE;
