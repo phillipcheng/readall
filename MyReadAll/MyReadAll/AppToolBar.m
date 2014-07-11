@@ -72,18 +72,20 @@
         [_delMyReadingsBtn setEnabled:false];
     }
 }
-
+-(void)showAlert{
+    UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+    alert.title = @"Info";
+    alert.message = @"Please login to use this feature.";
+    [alert show];
+    return;
+}
 - (void)myReadingClick{
     //TODO: do not let go to my reading if not logged in
     BOOL nextMyReadingState = ![CRApp isMyReading];
     NSString* userId = [CRApp getUserId];
     if (nextMyReadingState){
         if (userId==nil||[@"" isEqualToString:userId]){
-            UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"" message:@"" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-            alert.title = @"Info";
-            alert.message = @"Please login to use this feature.";
-            [alert show];
-            return;
+            [self showAlert];
         }else{
             //keep catId to nil
         }
@@ -102,7 +104,7 @@
     if (uid!=nil && ![@"" isEqualToString:uid]) {
         [_wsClient asyncAddMyReading:uid ids:[_selCol getSelected] postProcessor:self];
     }else{
-        NSLog(@"uid is nil");
+        [self showAlert];
     }
 }
 
@@ -111,7 +113,7 @@
     if (uid!=nil && ![@"" isEqualToString:uid]) {
         [_wsClient asyncDelMyReading:uid ids:[_selCol getSelected] postProcessor:self];
     }else{
-        NSLog(@"uid is nil");
+        [self showAlert];
     }
 }
 
