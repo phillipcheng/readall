@@ -11,6 +11,7 @@
 
 extern NSString* const LOGIN_FAILED;
 extern NSString* const SIGN_UP_SUCCEED;
+extern NSString* const USER_EXIST;
 
 @interface CRApp:NSObject
 

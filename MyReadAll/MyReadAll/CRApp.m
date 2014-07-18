@@ -21,6 +21,7 @@ static NSMutableDictionary* siteConfMap;
 
 NSString* const LOGIN_FAILED=@"LoginFailed";
 NSString* const SIGN_UP_SUCCEED=@"SignupSucceed";
+NSString* const USER_EXIST=@"UserExist";
 
 @implementation CRApp
 

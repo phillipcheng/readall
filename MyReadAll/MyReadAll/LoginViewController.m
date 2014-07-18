@@ -83,6 +83,9 @@ int const ALERT_TAG_SIGNUP_SUCCESS=2;
         alert.message=@"Sign Up succeeded.";
         alert.tag = ALERT_TAG_SIGNUP_SUCCESS;
         [alert addButtonWithTitle:@"Continue to Login.."];
+    }else if([USER_EXIST isEqualToString:result]){
+        alert.title = @"Error";
+        alert.message=@"User Exist.";
     }else{
         alert.title = @"Error";
         alert.message = [NSString stringWithFormat:@"%@:%@", result, [err description]];

@@ -33,6 +33,10 @@
         [CRApp buildTemplateCache];
     });
     
+}
+
+-(void) viewDidAppear:(BOOL)animated{
+    //to make sure now the self selectedViewController is not nil
     _appToolBar = [[AppToolBar alloc]init:(id<SelectableCollection>)[self selectedViewController] navCtrl:self.navigationController];
     [self.navigationItem setRightBarButtonItems:[_appToolBar getButtonArray]];
 }

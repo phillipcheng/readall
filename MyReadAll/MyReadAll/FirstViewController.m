@@ -32,11 +32,9 @@
     [self.navigationItem setRightBarButtonItems:[_appToolBar getButtonArray]];
     
     //set type, columnNum by subClass
-    
 }
 
--(void) viewDidAppear:(BOOL)animated{
-    [super viewDidAppear:animated];
+- (void)postLoad{
     CGRect screenRect = [[UIScreen mainScreen] bounds];
     float x=screenRect.size.width;
     float y=screenRect.size.height;

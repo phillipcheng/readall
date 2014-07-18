@@ -30,6 +30,8 @@
 @property (weak, nonatomic) IBOutlet UICollectionView *readingCV;
 @property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *readingLayout;
 
+- (void) postLoad;
+
 - (IBAction)doSearch:(id)sender;
 - (IBAction)doPrev:(id)sender;
 - (IBAction)doNext:(id)sender;
