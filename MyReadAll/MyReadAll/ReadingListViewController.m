@@ -41,6 +41,8 @@ static NSString* rootCat=nil;
     [super setType:TYPE_NOVEL];
     [super setColumnNum:1];
     [super setHeight:30];
+    
+    [super postLoad];
 }
 
 - (void)didReceiveMemoryWarning
@@ -69,6 +71,12 @@ static NSString* rootCat=nil;
     cell.itemNumLbl.text = [NSString stringWithFormat:@"%d", [reading getItemNum]];
     return cell;
 }
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell
+forRowAtIndexPath:(NSIndexPath *)indexPath {
+    [cell setBackgroundColor:[UIColor clearColor]];
+}
+
 /*
 #pragma mark - Navigation
 

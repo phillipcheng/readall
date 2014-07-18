@@ -87,7 +87,7 @@ NSString* baseUrl;
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     [_webView loadData:receivedData MIMEType:@"text/html" textEncodingName:@"GBK" baseURL:nil];
-    NSLog(@"Succeeded! Received %d bytes of data",[receivedData length]);
+    NSLog(@"Succeeded! Received %d bytes of data",(int)[receivedData length]);
     
     
     theConnection = nil;

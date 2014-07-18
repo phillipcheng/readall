@@ -46,6 +46,8 @@ static NSString* rootCat=nil;
     _covers = [@[] mutableCopy];
     [super setType:TYPE_PIC];
     [super setColumnNum:3];
+    
+    [super postLoad];
 }
 
 - (void)didReceiveMemoryWarning
@@ -57,13 +59,13 @@ static NSString* rootCat=nil;
 //post process for the list of reading get from search
 -(void) postProcess:(NSString*) searchTxt searchCat:(NSString*) catId offset:(int) offset limit:(int) limit
              result:(SearchResult*) result err:(NSError *)err{
-    [super postProcess:searchTxt searchCat:catId offset:offset limit:limit result:result err:err];
-    
-    //populate the corresponding cover image array with NSNull
+    //populate the corresponding cover image array with NSNull, before fill each cell which might cause competition
     [_covers removeAllObjects];
     for (int i=0; i<[result.readings count]; i++) {
         [_covers addObject:[NSNull null]];
     }
+    
+    [super postProcess:searchTxt searchCat:catId offset:offset limit:limit result:result err:err];
 }
 
 //post process for the each reading got
@@ -74,15 +76,18 @@ static NSString* rootCat=nil;
         //&& ([sc.volId isEqualToString:_curVolId])
         &&(sc.pageNum == [[super.curPageTxt text]intValue])
         && (img!=nil)){
-        [_covers setObject:img atIndexedSubscript:[sc.indexPath row]];
-        dispatch_queue_t main = dispatch_get_main_queue();
-        dispatch_block_t block = ^{
-            [self.readingCV reloadItemsAtIndexPaths:@[sc.indexPath]];
-        };
-        if ([NSThread isMainThread]){
-            block();
-        }else{
-            dispatch_async(main, block);
+        if ([_covers count]>[sc.indexPath row]){
+            //to prevent last round image returned while this round's cover size is lesss
+            [_covers setObject:img atIndexedSubscript:[sc.indexPath row]];
+            dispatch_queue_t main = dispatch_get_main_queue();
+            dispatch_block_t block = ^{
+                [self.readingCV reloadItemsAtIndexPaths:@[sc.indexPath]];
+            };
+            if ([NSThread isMainThread]){
+                block();
+            }else{
+                dispatch_async(main, block);
+            }
         }
     }
 }
