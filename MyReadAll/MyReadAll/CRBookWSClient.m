@@ -285,28 +285,48 @@ int const DEL_OP=2;
     dispatch_async(queue, ^{
         NSMutableArray* readings = [[NSMutableArray alloc]init];
         NSError* err;
-        int count=0;
+        long count=0;
         if ((searchTxt!=nil && ![@"" isEqualToString:searchTxt])||//search by text
             ([CRApp isMyReading]&&(catId==nil)))//root level my reading list
         {
             //search by text, userId will be handled by server
             [readings addObjectsFromArray:[self getVolumesLike:searchTxt userId:userId type:type offset:offset limit:limit error:err]];
-            [readings addObjectsFromArray:[self getBooksByName:searchTxt userId:userId type:type offset:offset limit:limit error:err]];
+            if ([readings count]<limit){
+                count = [readings count];
+            }else{
+                count = [self getVCLike:searchTxt userId:userId type:type error:err];
+            }
+            NSMutableArray* books = [[NSMutableArray alloc]init];
+            [books addObjectsFromArray:[self getBooksByName:searchTxt userId:userId type:type offset:offset limit:limit error:err]];
+            if ([books count]<limit){
+                count+=[books count];
+            }else{
+                count+=[self getBCByName:searchTxt userId:userId type:type error:err];
+            }
             
-            //
-            count = [self getVCLike:searchTxt userId:userId type:type error:err];
-            count += [self getBCByName:searchTxt userId:userId type:type error:err];
+            [readings addObjectsFromArray:books];
+            
         }else{
             //search by cat, no userId needed, root level my reading list will be handled by previous block
             [readings addObjectsFromArray:[self getVolumesByPCat:catId offset:offset limit:limit error:err]];
-            [readings addObjectsFromArray:[self getBooksByCat:catId offset:offset limit:limit error:err]];
-            //
-            count = [self getVCByPCat:catId error:err];
-            count += [self getBCByCat:catId error:err];
+            if ([readings count]<limit){
+                count = [readings count];
+            }else{
+                count = [self getVCByPCat:catId error:err];
+            }
+            NSMutableArray* books = [[NSMutableArray alloc]init];
+            [books addObjectsFromArray:[self getBooksByCat:catId offset:offset limit:limit error:err]];
+            if ([books count]<limit){
+                count+=[books count];
+            }else{
+                count += [self getBCByCat:catId error:err];
+            }
+            [readings addObjectsFromArray:books];
+            
         }
         SearchResult* sr = [[SearchResult alloc]init];
         sr.readings = readings;
-        sr.count = count;
+        sr.count = (int)count;
 
         [postProcessor postProcess:searchTxt searchCat:catId offset:offset limit:limit result:sr err:err];
 
