@@ -45,6 +45,9 @@
         height = width*3/2;
     NSLog(@"reading collection view width: %d, height:%d", width, height);//collection view bounds in pixel
     [self.readingLayout setItemSize:CGSizeMake(width, height)];//item size in points
+    while (![CRApp isInitialized]){
+        [NSThread sleepForTimeInterval:0.06];
+    }
     [self doSearch:self];
 }
 
