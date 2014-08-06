@@ -36,4 +36,5 @@ extern NSString* const USER_EXIST;
 +(Volume*) getTemplate:(NSString*) readingId;
 +(void) buildTemplateCache;
 
++(BOOL) isInitialized;
 @end

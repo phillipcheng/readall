@@ -18,12 +18,17 @@ static NSDateFormatter* dateFormatter;
 static NSMutableArray* attrChangedListeners;
 static BOOL isMyReading=false;
 static NSMutableDictionary* siteConfMap;
+static BOOL initialized=false;
 
 NSString* const LOGIN_FAILED=@"LoginFailed";
 NSString* const SIGN_UP_SUCCEED=@"SignupSucceed";
 NSString* const USER_EXIST=@"UserExist";
 
 @implementation CRApp
+
++(BOOL) isInitialized{
+    return initialized;
+}
 
 +(Volume*) getTemplate:(NSString*) readingId{
     if (siteConfMap==nil){
@@ -54,6 +59,7 @@ NSString* const USER_EXIST=@"UserExist";
     for (Volume* vol in volList) {
         [siteConfMap setObject:vol forKey:[vol getId]];
     }
+    initialized=TRUE;
 }
 
 +(BOOL) isMyReading{
