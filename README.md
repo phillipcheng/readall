@@ -1,1 +1,1 @@
-iOS version of RealAll Application.
+iOS version of RealAll/CRBook Application.
